@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import setuptools
+from setuptools import find_packages
 import os
 
 from src.mframework.__version__ import __version__
@@ -36,7 +37,8 @@ setuptools.setup(
     include_package_data=True,
     package_dir={'': PACKAGE_DIR},
     license=LICENSE,
-    packages=[PACKAGE],
+    # packages=[PACKAGE],
+    packages=find_packages(where=PACKAGE_DIR),
     python_requires=REQUIRES_PYTHON,
     install_requires=REQUIRED,
     # See: https://pypi.org/classifiers/

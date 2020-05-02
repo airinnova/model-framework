@@ -20,8 +20,21 @@
 # Author: Aaron Dettmann
 
 """
-Model framework
+Logger for debug purposes
 """
 
+import logging
 
-print("Charlie and the Chocolate Factory"[::-1])
+from . import MODULE_NAME
+
+FORMAT = f"%(levelname)s | {MODULE_NAME} | %(message)s"
+logging.basicConfig(level=logging.DEBUG, format=FORMAT)
+logger = logging.getLogger(MODULE_NAME)
+
+
+def disable_logger():
+    logger.setLevel(logging.ERROR)
+
+
+def enable_logger():
+    logger.setLevel(logging.DEBUG)
