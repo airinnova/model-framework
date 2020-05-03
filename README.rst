@@ -29,9 +29,9 @@
 Vision
 ======
 
-This *Python* package provides two classes (``FeatureSpec()`` and ``ModelSpec()``) to build simple, understandable and consistent user interfaces for (physics) models. A *model* is made up of *features*, and each feature is made up of *properties*. The model *developer* defines the *model* using specifications of model *features* and specifications of feature *properties* (user input).
+This *Python* package provides two classes (``FeatureSpec()`` and ``ModelSpec()``) to build simple, understandable and consistent user interfaces for (physics) models. A *model* is made up of *features*, and each feature is made up of *properties*. The *developer* defines the *model* using specifications of model *features* and feature *properties* (user input).
 
-The end-user of the final model object can only interact with safe "setter" and "getter" methods of the specified model object. Due to the small number of simple methods which follow a clear "key-value paradigm" the model API is very easy to learn and to document. As a model developer, you can easily enforce user-input checks to avoid incorrect data. Expected input is defined in a simple schema format, and user-input checks are performed when data entered by the user.
+The end-user of the final model object can only interact with safe "setter" and "getter" methods of the specified model object. Due to the small number of simple methods which follow a clear "key-value paradigm" the model API is very easy to learn and to document. As a model developer, you can easily enforce user-input checks to avoid invalid data. Expected input is defined in a simple schema format, and user-input checks are performed when data entered by the user.
 
 Basic system
 ------------
@@ -39,11 +39,11 @@ Basic system
 * Provide specification classes that enable to easily define a complex (physics) models (e.g. a beam structure)
 * A *model* is made up of one or more *features* (singleton/non-singleton)
 
-    * A model has user methods *add_feature*, *set_feature* and *get*/*iter*
+    * A model has user methods ``add_feature``, ``set_feature`` and ``get``/``iter``
 
 * Each feature has one or more *properties* (singleton/non-singleton)
 
-    * A feature has user methods *set*/*add* and *get*/*iter* methods to interact with properties
+    * A feature has user methods ``set``/``add`` and ``get``/``iter`` methods to interact with properties
 
 Additional features
 -------------------
@@ -61,8 +61,7 @@ Basic usage
 Developer code
 --------------
 
-* Provides the specification of the model.
-* Two classes are available:
+The model developer provides the specification of the model. Two classes are available:
 
     * Class ``FeatureSpec()`` defines a feature with its properties.
     * Class ``ModelSpec()`` defines a model with its features.
@@ -76,7 +75,6 @@ Developer code
 
     fspec_wing = FeatureSpec()
     fspec_wing.add_prop_spec('span', float)
-    # User values can also be checked against a 'schemadict'
     fspec_wing.add_prop_spec('area', {'type': float, '>': 0})
 
     mspec_aircraft = ModelSpec()
@@ -88,12 +86,11 @@ Developer code
 User code
 ---------
 
-* Builds the model with actual values.
-* Errors when providing wrong input data.
+The end-user builds the model with actual values. Errors are thrown if invalid data is provided.
 
 .. code:: python
 
-    from xyz import Aircraft
+    from somewhere import Aircraft
 
     ac = Aircraft()
 
