@@ -1,2 +1,3 @@
 Sphinx==1.8.5
 sphinx-rtd-theme==0.4.3
+schemadict>=0.0.8
