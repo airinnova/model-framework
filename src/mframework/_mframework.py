@@ -39,6 +39,12 @@ from schemadict import schemadict
 
 from ._log import logger
 
+PRIMITIVE_TYPES = (bool, int, float, str, dict, list, tuple)
+
+
+def is_primitve_type(obj):
+    return obj in PRIMITIVE_TYPES
+
 
 class FeatureSpec:
 
@@ -73,11 +79,14 @@ class FeatureSpec:
         """
 
         if not isinstance(key, str):
-            raise ValueError(f"'key' must be of type string, got {type(key)}")
+            raise TypeError(f"'key' must be of type string, got {type(key)}")
+
+        if not (is_primitve_type(schema) or isinstance(schema, dict)):
+            raise TypeError(f"'schema' must be a primitive type or a schemadict")
 
         for arg in (singleton, required):
             if not isinstance(arg, bool):
-                raise ValueError(f"argument of type boolean expected, got {type(arg)}")
+                raise TypeError(f"argument of type boolean expected, got {type(arg)}")
 
         # Keys must be unique, do not allow to overwrite
         if key in self._prop_specs.keys():
