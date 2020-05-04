@@ -165,6 +165,11 @@ class _FeatureUserSpace:
         logger.debug(f"Add property {key!r} = {value!r} (num: {len(self._props[key])+1})")
         self._props[key].append(value)
 
+    def add_many(self, key, values):
+        # TODO: check: values --> list or tuple
+        for value in values:
+            self.add(key, value)
+
     def get(self, key):
         """
         Return the stored properties
@@ -250,10 +255,13 @@ class ModelSpec:
         """
 
         if not isinstance(key, str):
-            raise ValueError(f"'key' must be of type string, got {type(key)}")
+            raise TypeError(f"'key' must be of type string, got {type(key)}")
+
+        if not isinstance(feature_spec, FeatureSpec):
+            raise TypeError(f"'feature_spec' must be instance of 'FeatureSpec'")
 
         if not isinstance(singleton, bool):
-            raise ValueError(f"Argument 'singleton' must be of type bool")
+            raise TypeError(f"Argument 'singleton' must be of type bool")
 
         # Keys must be unique, do not allow overwrite
         if key in self._feature_specs.keys():

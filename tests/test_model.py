@@ -48,3 +48,15 @@ def test_basic():
     # Beams are different, but the parent specification is the same
     assert beam1.uid != beam2.uid
     assert beam1._parent_uid == beam2._parent_uid
+
+
+def test_repr():
+    fspec = FeatureSpec()
+    fspec.add_prop_spec('x', int)
+
+    mspec = ModelSpec()
+    mspec.add_feature_spec('X', fspec)
+
+    m = mspec.provide_user_class()()
+
+    assert 'model' in repr(m).lower()
