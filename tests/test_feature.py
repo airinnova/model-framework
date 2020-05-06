@@ -124,6 +124,26 @@ def test_complex_schema():
         aircraft.set('wing', {'id': 'abc', 'span': 'WRONG_VALUE', 'area': 1.0})
 
 
+def test_from_dict():
+    fspec = FeatureSpec()
+    fspec.add_prop_spec('a', int)
+    fspec.add_prop_spec('b', str)
+    fspec.add_prop_spec('c', {'type': bool})
+
+    Feature = fspec.provide_user_class()
+
+    props = {
+        'a': 42,
+        'b': 'snake',
+        'c': True,
+    }
+
+    f = Feature().from_dict(props)
+
+    assert f.get('a') == 42
+    assert f.get('b') == 'snake'
+    assert f.get('c') is True
+
 # def test_repr():
 #     fspec = FeatureSpec()
 #     fspec.add_prop_spec('x', int)

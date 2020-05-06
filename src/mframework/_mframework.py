@@ -157,7 +157,16 @@ class _UserSpaceBase:
         self.uid = str(uuid4())
         self._items = defaultdict(list)
 
-    def _set(self, key, value):
+    def from_dict(self, dictionary):
+        for key, value in dictionary.items():
+            # TODO: check key in specification
+            if self._parent_specs[key].singleton:
+                self.set(key, value)
+            else:
+                self.add(key, value)
+        return self
+
+    def set(self, key, value):
         self._raise_err_key_not_allowed(key)
         self._raise_err_incorrect_type(key, value)
 
@@ -167,7 +176,7 @@ class _UserSpaceBase:
         logger.debug(f"Set property {key!r} = {value!r}")
         self._items[key] = [value, ]
 
-    def _add(self, key, value):
+    def add(self, key, value):
         self._raise_err_key_not_allowed(key)
         self._raise_err_incorrect_type(key, value)
 
@@ -177,25 +186,25 @@ class _UserSpaceBase:
         logger.debug(f"Add property {key!r} = {value!r} (num: {len(self._items[key])+1})")
         self._items[key].append(value)
 
-    def _add_many(self, key, values):
+    def add_many(self, key, values):
         # TODO: check: values --> list or tuple
         for value in values:
             self.add(key, value)
 
-    def _get(self, key):
+    def get(self, key):
         if self._parent_specs[key].singleton:
             return self._items[key][0]
         else:
             return self._items[key]
 
-    def _iter(self, key):
+    def iter(self, key):
 
         if self._parent_specs[key].singleton:
             raise KeyError(f"Method 'iter()' not supported for item {key!r}, try 'get()'")
 
         yield from self._items[key]
 
-    def _len(self, key):
+    def len(self, key):
         return len(self._items[key])
 
     def _raise_err_key_not_allowed(self, key):
@@ -235,28 +244,7 @@ class FeatureSpec(_BaseSpec):
         TODO
         """
 
-        return super()._provide_user_class(_FeatureUserSpace)
-
-
-class _FeatureUserSpace(_UserSpaceBase):
-
-    def set(self, key, value):
-        super()._set(key, value)
-
-    def add(self, key, value):
-        super()._add(key, value)
-
-    def add_many(self, key, values):
-        super()._add_many(key, values)
-
-    def get(self, key):
-        return super()._get(key)
-
-    def iter(self, key):
-        yield from super()._iter(key)
-
-    def len(self, key):
-        return super()._len(key)
+        return super()._provide_user_class(_UserSpaceBase)
 
 
 class ModelSpec(_BaseSpec):
@@ -283,6 +271,22 @@ class ModelSpec(_BaseSpec):
 
 
 class _ModelUserSpace(_UserSpaceBase):
+
+    def from_dict(self, dictionary):
+        for key, feature_dict in dictionary.items():
+            # TODO: check key in specification
+            if self._parent_specs[key].singleton:
+                feature = self.set_feature(key)
+            else:
+                feature = self.add_feature(key)
+            feature.from_dict(feature_dict)
+        return self
+
+    def set(self, key, _):
+        return NotImplementedError
+
+    def add(self, key, _):
+        return NotImplementedError
 
     def set_feature(self, key):
         """
@@ -327,9 +331,3 @@ class _ModelUserSpace(_UserSpaceBase):
         f_instance = self._parent_specs[key].spec.provide_user_class()()
         self._items[key].append(f_instance)
         return f_instance
-
-    def get(self, key):
-        return super()._get(key)
-
-    def iter(self, key):
-        yield from super()._iter(key)

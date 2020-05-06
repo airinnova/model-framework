@@ -50,6 +50,51 @@ def test_basic():
     assert beam1._parent_uid == beam2._parent_uid
 
 
+def test_from_dict():
+    fspec1 = FeatureSpec()
+    fspec1.add_prop_spec('a', int)
+    fspec1.add_prop_spec('b', str)
+    fspec1.add_prop_spec('c', {'type': bool})
+
+    fspec2 = FeatureSpec()
+    fspec2.add_prop_spec('one', int)
+    fspec2.add_prop_spec('two', str)
+    fspec2.add_prop_spec('three', {'type': bool})
+
+    mspec = ModelSpec()
+    mspec.add_feature_spec('A', fspec1)
+    mspec.add_feature_spec('B', fspec2)
+    Model = mspec.provide_user_class()
+
+    props1 = {
+        'a': 42,
+        'b': 'snake',
+        'c': True,
+    }
+
+    props2 = {
+        'one': 43,
+        'two': 'Snake',
+        'three': False,
+    }
+
+    model_dict = {
+        'A': props1,
+        'B': props2,
+    }
+
+    m = Model().from_dict(model_dict)
+    m_fa = m.get('A')
+    m_fb = m.get('B')
+
+    assert m_fa.get('a') == 42
+    assert m_fa.get('b') == 'snake'
+    assert m_fa.get('c') is True
+
+    assert m_fb.get('one') == 43
+    assert m_fb.get('two') == 'Snake'
+    assert m_fb.get('three') is False
+
 # def test_repr():
 #     fspec = FeatureSpec()
 #     fspec.add_prop_spec('x', int)

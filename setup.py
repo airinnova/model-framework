@@ -12,8 +12,8 @@ PACKAGE = 'mframework'
 VERSION = __version__
 AUTHOR = 'Aaron Dettmann'
 EMAIL = 'dettmann@kth.se'
-DESCRIPTION = ''
-URL = 'Framework to build consistent model interfaces '
+DESCRIPTION = 'Framework to build consistent model interfaces'
+URL = 'https://github.com/airinnova/model-framework'
 REQUIRES_PYTHON = '>=3.6.0'
 REQUIRED = []
 README = 'README.rst'
