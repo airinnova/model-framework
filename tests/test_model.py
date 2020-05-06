@@ -50,13 +50,13 @@ def test_basic():
     assert beam1._parent_uid == beam2._parent_uid
 
 
-def test_repr():
-    fspec = FeatureSpec()
-    fspec.add_prop_spec('x', int)
+# def test_repr():
+#     fspec = FeatureSpec()
+#     fspec.add_prop_spec('x', int)
 
-    mspec = ModelSpec()
-    mspec.add_feature_spec('X', fspec)
+#     mspec = ModelSpec()
+#     mspec.add_feature_spec('X', fspec)
 
-    m = mspec.provide_user_class()()
+#     m = mspec.provide_user_class()()
 
-    assert 'model' in repr(m).lower()
+#     assert 'model' in repr(m).lower()

@@ -124,11 +124,11 @@ def test_complex_schema():
         aircraft.set('wing', {'id': 'abc', 'span': 'WRONG_VALUE', 'area': 1.0})
 
 
-def test_repr():
-    fspec = FeatureSpec()
-    fspec.add_prop_spec('x', int)
-    Feature = fspec.provide_user_class()
+# def test_repr():
+#     fspec = FeatureSpec()
+#     fspec.add_prop_spec('x', int)
+#     Feature = fspec.provide_user_class()
 
-    f = Feature()
-    assert 'feature' in repr(f).lower()
-    assert 'parent' in repr(f).lower()
+#     f = Feature()
+#     assert 'feature' in repr(f).lower()
+#     assert 'parent' in repr(f).lower()
