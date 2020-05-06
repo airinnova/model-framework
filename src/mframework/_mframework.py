@@ -54,56 +54,94 @@ class _BaseSpec:
             'spec',
             'singleton',
             'required',
+            'doc',
         ]
     )
 
     def __init__(self):
         """
-        Base class to store a collection of specification items.
+        Base class to store a collection of item specifications.
 
-        Each item added to this class must have specification. An item may
-        refer to a property (e.g. the number 5) if this class describes a
-        feature, or it may also refer to a feature if this class describes a
-        model.
+        The term 'item' may refer to a property (e.g. the number 5) if this
+        class describes a feature, or it may also refer to a feature itself if
+        this class describes a model.
 
         Attrs:
             :uid: (str) unique identifier
-            :_item_specs: (dict) specifications (value) of items (key)
+            :_specs: (dict) specifications (value) of items (key)
         """
 
         self.uid = str(uuid4())
-        self._item_specs = {}
+        self._specs = {}
 
-    def _add_item_spec(self, key, spec, *, singleton=True, required=False):
+    def __repr__(self):
+        return f"<Specification for {tuple(self._specs.keys())}>"
+
+    def _add_item_spec(self, key, spec, *, singleton=True, required=False, doc=''):
         """
-        TODO
+        Add a specification
+
+        Args:
+            :key: (str) name of item to specify
+            :spec: (obj) specification
+            :singleton: (bool) if True, make item singleton
+            :required: (bool) if True, make item required
+            :doc: (str) documentation
 
         Note:
-        * When using from subclass, add a user input check for 'spec'
+            * When calling from subclass, add a user input check for 'spec'
         """
 
-        if not isinstance(key, str):
-            raise TypeError(f"'key' must be of type string, got {type(key)}")
+        for arg, arg_name in zip((key, doc), ('key', 'doc')):
+            if not isinstance(key, str):
+                raise TypeError(f"{arg_name!r} must be of type string")
 
-        for arg in (singleton, required):
+        for arg, arg_name in zip((singleton, required), ('singleton', 'required')):
             if not isinstance(arg, bool):
-                raise TypeError(f"argument of type boolean expected, got {type(arg)}")
+                raise TypeError(f"{arg_name!r} must be of type boolean")
 
-        if key in self._item_specs.keys():
+        if key in self._specs.keys():
             raise KeyError(f"specification {key!r} already defined")
 
-        self._item_specs[key] = self._ITEM_SPEC(spec, singleton, required)
+        self._specs[key] = self._ITEM_SPEC(spec, singleton, required, doc)
 
     def _provide_user_class(self, base):
         """
-        TODO
+        Return a user space class which subclasses from 'base'
+
+        Args:
+            :base: (obj) base class
+
+        Returns:
+            :UserSpace: (obj) user space class with specification reference
         """
 
         class UserSpace(base):
-            _parent_specs = self._item_specs
+            _parent_specs = self._specs
             _parent_uid = self.uid
 
         return UserSpace
+
+    def get_docs(self):
+        """
+        Return user documentation
+
+        Returns:
+            :docs: (dict) full documentation
+        """
+
+        docs = {}
+        for item_key, item_spec in self._specs.items():
+            subdocs = None
+            if isinstance(getattr(item_spec, 'spec', None), _BaseSpec):
+                subdocs = item_spec.spec.get_docs()
+
+            docs[item_key] = {
+                'main': self._specs[item_key].doc,
+                'sub': subdocs,
+            }
+
+        return docs
 
 
 class _UserSpaceBase:
@@ -176,7 +214,7 @@ class _UserSpaceBase:
 
 class FeatureSpec(_BaseSpec):
 
-    def add_prop_spec(self, key, schema, *, singleton=True, required=False):
+    def add_prop_spec(self, key, schema, *, singleton=True, required=False, doc=''):
         """
         TODO
         """
@@ -184,7 +222,13 @@ class FeatureSpec(_BaseSpec):
         if not (is_primitve_type(schema) or isinstance(schema, dict)):
             raise TypeError(f"'schema' must be a primitive type or a schemadict")
 
-        super()._add_item_spec(key, schema, singleton=singleton, required=required)
+        super()._add_item_spec(
+            key,
+            schema,
+            singleton=singleton,
+            required=required,
+            doc=doc,
+        )
 
     def provide_user_class(self):
         """
@@ -217,12 +261,18 @@ class _FeatureUserSpace(_UserSpaceBase):
 
 class ModelSpec(_BaseSpec):
 
-    def add_feature_spec(self, key, feature_spec, *, singleton=True, required=True):
+    def add_feature_spec(self, key, feature_spec, *, singleton=True, required=True, doc=''):
 
         if not isinstance(feature_spec, FeatureSpec):
             raise TypeError(f"'feature_spec' must be instance of 'FeatureSpec'")
 
-        super()._add_item_spec(key, feature_spec, singleton=singleton, required=required)
+        super()._add_item_spec(
+            key,
+            feature_spec,
+            singleton=singleton,
+            required=required,
+            doc=doc
+        )
 
     def provide_user_class(self):
         """
