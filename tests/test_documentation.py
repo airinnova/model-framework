@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import pytest
-
-from mframework import FeatureSpec, ModelSpec
+from mframework import FeatureSpec, ModelSpec, doc2rst, dump_pretty_json
 
 
 def test_feature_doc():
@@ -42,3 +40,100 @@ def test_model_doc():
     assert docs['CrossSection']['sub']['A']['main'] == "Area"
     assert docs['Geom']['sub']['point1']['main'] == "Coordinates of point 1"
     assert docs['Geom']['sub']['point2']['main'] == "Coordinates of point 2"
+
+
+exp_rst = \
+"""Feature: beam
+=============
+
+**Description**: A beam carries load
+**Singleton**: False
+**Required**: True
+
+Property: A [Parent feature: beam]
+----------------------------------
+
+**Description**: Something about property A
+**Singleton**: True
+**Required**: False
+**Schema**:
+   * *type*: <class 'int'>
+   * *>*: 0
+
+Property: B [Parent feature: beam]
+----------------------------------
+
+**Description**: Property B is also great
+**Singleton**: False
+**Required**: False
+**Schema**:
+   * *type*: <class 'int'>
+
+Feature: study
+==============
+
+**Description**: Specify the type of study to run
+**Singleton**: True
+**Required**: True
+
+Property: static [Parent feature: study]
+----------------------------------------
+
+**Singleton**: True
+**Required**: False
+**Schema**:
+   * *type*: <class 'bool'>
+
+"""
+
+
+def test_to_dict_and_documentation():
+    """
+    Test basic functionality of 'ModelSpec'
+    """
+    print()
+
+    # ===== Specifications =====
+
+    fspec_beam = FeatureSpec()
+    fspec_beam.add_prop_spec('A', {'type': int, '>': 0}, doc='Something about property A')
+    fspec_beam.add_prop_spec('B', int, singleton=False, doc='Property B is also great')
+
+    fspec_study = FeatureSpec()
+    fspec_study.add_prop_spec('static', bool)
+
+    mspec = ModelSpec()
+    mspec.add_feature_spec('beam', fspec_beam, singleton=False, doc='A beam carries load')
+    mspec.add_feature_spec('study', fspec_study, singleton=True, doc='Specify the type of study to run')
+
+    Model = mspec.provide_user_class()
+    beam_model = Model()
+
+    # ===== User logic =====
+
+    beam1 = beam_model.add_feature('beam')
+    beam1.set('A', 1)
+    beam1.add('B', 2)
+    beam1.add('B', 3)
+
+    beam2 = beam_model.add_feature('beam')
+    beam2.set('A', 2)
+    beam2.add('B', 4)
+    beam2.add('B', 6)
+
+    study = beam_model.set_feature('study')
+    study.set('static', True)
+
+    # ----- Serialization -----
+    model_dict = beam_model.to_dict()
+    with open('test.json', 'w') as fp:
+        dump_pretty_json(model_dict, fp)
+
+    beam_model = Model().from_dict(model_dict)
+    beam1 = beam_model.get('beam')[0]
+    assert beam1.get('A') == 1
+    assert beam1.get('B') == [2, 3]
+
+    # ----- Documentation -----
+    docs = mspec.get_docs()
+    assert doc2rst(docs) == exp_rst

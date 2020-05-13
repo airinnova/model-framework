@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import pytest
+
 from mframework import FeatureSpec, ModelSpec
 
 
@@ -67,20 +69,20 @@ def test_from_dict():
     Model = mspec.provide_user_class()
 
     props1 = {
-        'a': 42,
-        'b': 'snake',
-        'c': True,
+        'a': [42, ],
+        'b': ['snake', ],
+        'c': [True, ],
     }
 
     props2 = {
-        'one': 43,
-        'two': 'Snake',
-        'three': False,
+        'one': [43, ],
+        'two': ['Snake', ],
+        'three': [False, ],
     }
 
     model_dict = {
-        'A': props1,
-        'B': props2,
+        'A': [props1, ],
+        'B': [props2, ],
     }
 
     m = Model().from_dict(model_dict)
@@ -95,13 +97,81 @@ def test_from_dict():
     assert m_fb.get('two') == 'Snake'
     assert m_fb.get('three') is False
 
-# def test_repr():
-#     fspec = FeatureSpec()
-#     fspec.add_prop_spec('x', int)
 
-#     mspec = ModelSpec()
-#     mspec.add_feature_spec('X', fspec)
+def test_errors_add_feature_spec():
+    """
+    Test 'add_feature_spec()' method
+    """
 
-#     m = mspec.provide_user_class()()
+    fspec_door = FeatureSpec()
+    fspec_door.add_prop_spec('color', str)
 
-#     assert 'model' in repr(m).lower()
+    fspec_motor = FeatureSpec()
+    fspec_motor.add_prop_spec('type', str)
+
+    mspec_car = ModelSpec()
+
+    # ----- Wrong type: key -----
+    with pytest.raises(TypeError):
+        mspec_car.add_feature_spec(22, fspec_door)
+
+    # ----- Wrong type: feature_spec -----
+    with pytest.raises(TypeError):
+        mspec_car.add_feature_spec('door', fspec_door.provide_user_class())
+
+    with pytest.raises(TypeError):
+        mspec_car.add_feature_spec('door', fspec_door.provide_user_class()())
+
+    # ----- Wrong type: singleton -----
+    with pytest.raises(TypeError):
+        mspec_car.add_feature_spec('door', fspec_door, singleton='yes')
+
+    # Cannot add property twice...
+    mspec_car.add_feature_spec('motor', fspec_motor)
+    with pytest.raises(KeyError):
+        mspec_car.add_feature_spec('motor', fspec_motor)
+
+
+def test_error_set_feature():
+    """
+
+    """
+    print()
+
+    fspec = FeatureSpec()
+    mspec = ModelSpec()
+
+    fspec.add_prop_spec('a', int, singleton=True)
+    fspec.add_prop_spec('b', int, singleton=False)
+    mspec.add_feature_spec('A', fspec, singleton=True)
+
+    fspec.add_prop_spec('1', str, singleton=True)
+    fspec.add_prop_spec('2', str, singleton=False)
+    mspec.add_feature_spec('B', fspec, singleton=False)
+
+    m = mspec.provide_user_class()()
+
+    # Feature 'A' is non-singleton
+    with pytest.raises(RuntimeError):
+        m.add_feature('A')
+    m.set_feature('A')
+
+    # Feature 'B' is singleton
+    with pytest.raises(RuntimeError):
+        m.set_feature('B')
+    m.add_feature('B')
+    m.add_feature('B')
+    m.add_feature('B')
+
+    fa = m.get('A')
+    fa.set('a', 2)
+
+    fb = m.get('B')
+    assert len(fb) == 3
+
+    with pytest.raises(KeyError):
+        for _ in m.iter('A'):
+            pass
+
+    for _ in m.iter('B'):
+        pass

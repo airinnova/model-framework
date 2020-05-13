@@ -23,13 +23,16 @@
 Model framework
 ===============
 
-    |    Model     <---   ModelSpec
-    |      |                 |
-    |      |                 |
-    |   Feature   (<---) FeatureSpec
-    |      |
-    |      |
-    |  (Property)
+    |   User space   |       Specification
+    |   ----------   |       -------------
+    |                |
+    |     Model      |  <---   ModelSpec
+    |       |        |             |
+    |       |        |             |
+    |    Feature     | (<---) FeatureSpec
+    |       |        |
+    |       |        |
+    |  (Properties)  |
 """
 
 from collections.abc import MutableMapping
@@ -46,6 +49,13 @@ def is_primitve_type(obj):
     return obj in PRIMITIVE_TYPES
 
 
+def check_type(var_name, var, exp_type):
+    if not isinstance(var, exp_type):
+        raise TypeError(
+            f"invalid type for {var_name!r}: expected {exp_type}, got {type(var)}"
+        )
+
+
 class DictLike(MutableMapping):
     """
     Dictionary-like object.
@@ -54,7 +64,6 @@ class DictLike(MutableMapping):
     """
 
     def __init__(self, *args, **kwargs):
-
         self.mapping = {}
         self.update(*args, **kwargs)
 
@@ -92,17 +101,20 @@ class SpecDict(DictLike):
 
     def __setitem__(self, key, value):
         if key in self.mapping.keys():
-            raise KeyError(f"entry {key!r} already defined")
+            raise KeyError(f"key {key!r}: entry already defined")
+        if not isinstance(value, SpecEntry):
+            raise ValueError(f"key {key!r}: value must be instance of 'SpecEntry'")
         super().__setitem__(key, value)
 
 
-# TODO --> keep reference of parent spec in ItemDict
 class ItemDict(DictLike):
     """
     Item dictionary.
 
     * Similar to a 'defaultdict(list)'
     """
+
+    # TODO: keep reference of parent spec in ItemDict ?
 
     def __getitem__(self, key):
         if key not in self.mapping.keys():
@@ -138,7 +150,7 @@ class SpecEntry:
 
     @singleton.setter
     def singleton(self, singleton):
-        self._check_type_bool('singleton', singleton)
+        check_type('singleton', singleton, bool)
         self._singleton = singleton
 
     @property
@@ -147,7 +159,7 @@ class SpecEntry:
 
     @required.setter
     def required(self, required):
-        self._check_type_bool('required', required)
+        check_type('required', required, bool)
         self._required = required
 
     @property
@@ -156,12 +168,8 @@ class SpecEntry:
 
     @doc.setter
     def doc(self, doc):
+        check_type('doc', doc, str)
         self._doc = doc
-
-    @staticmethod
-    def _check_type_bool(var_name, var):
-        if not isinstance(var, bool):
-            raise TypeError(f"invalid type for {var_name}: expected {bool}, got {type(var)}")
 
 
 class _BaseSpec:
@@ -184,11 +192,11 @@ class _BaseSpec:
         self._specs = SpecDict()
 
     def __repr__(self):
-        return f"<Specification for {tuple(self._specs.keys())}>"
+        return f"<Specification for {tuple(self._specs.keys())!r}>"
 
     def add_item_spec(self, key, schema, *, singleton=True, required=False, doc=''):
         """
-        Add a specification
+        Add a specification entry
 
         Args:
             :key: (str) name of item to specify
@@ -198,6 +206,9 @@ class _BaseSpec:
             :doc: (str) documentation
 
         Note:
+            * 'schema' should be a primitive type or a schemadict if a this
+               class describes a feature. It should be an instance of
+               'FeatureSpec' if this class describes a model.
             * When calling from subclass, add a user input check for 'schema'
         """
 
@@ -238,6 +249,8 @@ class _BaseSpec:
                 'main': self._specs[key].doc,
                 'schema': self._specs[key].schema,
                 'sub': subdocs,
+                'singleton': self._specs[key].singleton,
+                'required': self._specs[key].required,
             }
 
         return docs
@@ -248,6 +261,7 @@ class _UserSpaceBase:
     Base class for user space functionality for 'model' or 'feature'.
     """
 
+    _level = '$NONE'
     _parent_specs = None
     _parent_uid = None
 
@@ -260,32 +274,61 @@ class _UserSpaceBase:
         self.uid = str(uuid4())
         self._items = ItemDict()
 
-    def from_dict(self, dictionary):
+    def __repr__(self):
+        return f"<User space for {tuple(self._parent_specs.keys())!r}>"
+
+    def from_dict(self, d):
         """
         Add user values from a dictionary
 
         Args:
-            :dictionary: (dict) key-value pairs
+            :d: (dict) key-value pairs
+
+        Returns:
+            :self: (obj) reference to self
         """
 
-        for key, value in dictionary.items():
+        check_type(f'{d!r}', d, dict)
+
+        for key, value in d.items():
+            if key.startswith('$'):
+                continue
             self._check_key_in_spec(key)
             if self._parent_specs[key].singleton:
-                self.set(key, value)
+                self.set(key, value[0])
             else:
-                self.add(key, value)
+                self.add(key, *value)
         return self
 
     def to_dict(self):
         """
-        TODO
+        Represent model/feature as a dictionary
+
+        Returns:
+            :dictionary: (dict) key-value pairs
         """
 
-        return self._items
+        return {
+            '$level': self._level,
+            '$uid': self.uid,
+            **dict(self._items)
+        }
+
+    def get_default(self, key):
+        """
+        Return the model/feature default values
+        """
+
+        # return schemadict.default_value_dict(self._parent_specs[key])
+        raise NotImplementedError
 
     def set(self, key, value):
         """
-        TODO
+        Set a value (singleton)
+
+        Args:
+            :key: (str) name of item to specify
+            :value: (obj) value of the item to specify
         """
 
         self._check_key_in_spec(key)
@@ -294,37 +337,38 @@ class _UserSpaceBase:
         if not self._parent_specs[key].singleton:
             raise RuntimeError(f"method 'set()' does not apply to {key!r}, try 'add()'")
 
-        logger.debug(f"Set property {key!r} = {value!r}")
+        logger.debug(f"Set property {key!r} = {value!r} in {self!r}")
         self._items[key] = [value, ]
 
-    def add(self, key, value):
+    def add(self, key, *values):
         """
-        TODO
+        Add a value (non-singleton)
+
+        Args:
+            :key: (str) name of item to specify
+            :value: (obj) value of the item to specify
         """
 
         self._check_key_in_spec(key)
-        self._check_against_schema(key, value)
-
-        if self._parent_specs[key].singleton:
-            raise RuntimeError(f"Method 'add()' does not apply to {key!r}, try 'set()'")
-
-        logger.debug(f"Add property {key!r} = {value!r} (num: {len(self._items[key])+1})")
-        self._items[key].append(value)
-
-    def add_many(self, key, values):
-        """
-        TODO
-        """
-
-        if not isinstance(values, (list, tuple)):
-            raise TypeError("'values' must be list or tuple")
 
         for value in values:
-            self.add(key, value)
+            self._check_against_schema(key, value)
+
+            if self._parent_specs[key].singleton:
+                raise RuntimeError(f"Method 'add()' does not apply to {key!r}, try 'set()'")
+
+            logger.debug(f"Add property {key!r} = {value!r} (num: {len(self._items[key])+1}) in {self!r}")
+            self._items[key].append(value)
 
     def get(self, key):
         """
-        TODO
+        Return a value (singleton/non-singleton)
+
+        Args:
+            :key: (str) name of item
+
+        Returns:
+            :value: (obj) value of the item
         """
 
         if self._parent_specs[key].singleton:
@@ -333,6 +377,12 @@ class _UserSpaceBase:
             return self._items[key]
 
     def iter(self, key):
+        """
+        Return an iterator for values of 'key' (non-singleton)
+
+        Args:
+            :key: (str) name of item
+        """
 
         if self._parent_specs[key].singleton:
             raise KeyError(f"Method 'iter()' not supported for item {key!r}, try 'get()'")
@@ -349,76 +399,118 @@ class _UserSpaceBase:
     def _check_against_schema(self, key, value):
         if isinstance(self._parent_specs[key].schema, dict):
             if not isinstance(value, dict):
-                schemadict({'v': self._parent_specs[key].schema}).validate({'v': value})
+                schemadict(
+                    {f"{key}": self._parent_specs[key].schema}
+                ).validate(
+                    {f"{key}": value}
+                )
             else:
                 schemadict(self._parent_specs[key].schema).validate(value)
-        elif not isinstance(value, self._parent_specs[key].schema):
-            raise ValueError(f"invalid type for {key!r}: expected {self._parent_specs[key].schema}, got {type(value)}")
 
 
 class FeatureSpec(_BaseSpec):
 
     def add_prop_spec(self, key, schema, *, singleton=True, required=False, doc=''):
         """
-        TODO
+        Add a property specification entry
+
+        Args:
+            :key: (str) name of property to specify
+            :schema: (obj) specification (primitive type, or schemadict)
+            :singleton: (bool) if True, make item singleton
+            :required: (bool) if True, make item required
+            :doc: (str) documentation
         """
 
         if not (is_primitve_type(schema) or isinstance(schema, dict)):
             raise TypeError(f"'schema' must be a primitive type or a schemadict")
 
+        # Always use a schemadict
         if is_primitve_type(schema):
             schema = {'type': schema}
 
-        super().add_item_spec(
-            key,
-            schema,
-            singleton=singleton,
-            required=required,
-            doc=doc,
-        )
+        super().add_item_spec(key, schema, singleton=singleton, required=required, doc=doc)
 
     def provide_user_class(self):
-        """
-        TODO
-        """
+        """Return a 'Feature' class with user and user methods"""
 
-        return super()._provide_user_class_from_base(_UserSpaceBase)
+        return super()._provide_user_class_from_base(_FeatureUserSpace)
+
+
+class _FeatureUserSpace(_UserSpaceBase):
+    _level = '$feature'
 
 
 class ModelSpec(_BaseSpec):
 
     def add_feature_spec(self, key, feature_spec, *, singleton=True, required=True, doc=''):
+        """
+        Add a feature specification entry
+
+        Args:
+            :key: (str) name of feature to specify
+            :schema: (obj) specification (instance of FeatureSpec)
+            :singleton: (bool) if True, make feature singleton
+            :required: (bool) if True, make feature required
+            :doc: (str) documentation
+        """
 
         if not isinstance(feature_spec, FeatureSpec):
             raise TypeError(f"'feature_spec' must be instance of 'FeatureSpec'")
 
-        super().add_item_spec(
-            key,
-            feature_spec,
-            singleton=singleton,
-            required=required,
-            doc=doc
-        )
+        super().add_item_spec(key, feature_spec, singleton=singleton, required=required, doc=doc)
 
     def provide_user_class(self):
-        """
-        Return a 'Model' class with user and user methods
-        """
+        """Return a 'Model' class with user and user methods"""
 
         return super()._provide_user_class_from_base(_ModelUserSpace)
 
 
 class _ModelUserSpace(_UserSpaceBase):
+    _level = '$model'
 
     def from_dict(self, dictionary):
-        for key, feature_dict in dictionary.items():
-            # TODO: check key in specification
-            if self._parent_specs[key].singleton:
-                feature = self.set_feature(key)
-            else:
-                feature = self.add_feature(key)
-            feature.from_dict(feature_dict)
+        """
+        Add user values from a dictionary
+
+        Args:
+            :dictionary: (dict) key-value pairs
+
+        Returns:
+            :self: (obj) reference to self
+        """
+
+        for key, fdicts in dictionary.items():
+            if key.startswith('$'):
+                continue
+
+            self._check_key_in_spec(key)
+
+            for fdict in fdicts:
+                if self._parent_specs[key].singleton:
+                    feature = self.set_feature(key)
+                else:
+                    feature = self.add_feature(key)
+                feature.from_dict(fdict)
         return self
+
+    def to_dict(self):
+        """
+        Represent model as a dictionary
+
+        Returns:
+            :dictionary: (dict) key-value pairs
+        """
+
+        model_dict = {
+            '$level': self._level,
+            '$uid': self.uid,
+        }
+        for key, features in self._items.items():
+            model_dict[key] = []
+            for feature in features:
+                model_dict[key].append(feature.to_dict())
+        return model_dict
 
     def set(self, key, _):
         return NotImplementedError
@@ -437,13 +529,10 @@ class _ModelUserSpace(_UserSpaceBase):
             :feature: (obj) feature instance
         """
 
-        # TODO: check: 'key' is string
-        # TODO: check: feature exists in specification...
-
         if not self._parent_specs[key].singleton:
             raise RuntimeError(f"Method 'set_feature()' does not apply to {key!r}, try 'add_feature()'")
 
-        logger.debug(f"Set feature {key!r}")
+        logger.debug(f"Set feature {key!r} in {self!r}")
         f_instance = self._parent_specs[key].schema.provide_user_class()()
         self._items[key] = [f_instance, ]  # Store instance as list of length 1
         return f_instance
@@ -459,13 +548,10 @@ class _ModelUserSpace(_UserSpaceBase):
             :feature: (obj) feature instance
         """
 
-        # TODO: check: 'key' is string
-        # TODO: check: feature exists in specification...
-
         if self._parent_specs[key].singleton:
             raise RuntimeError(f"Method 'add_feature()' does not apply to {key!r}, try 'set_feature()'")
 
-        logger.debug(f"Add feature {key!r} (num: {len(self._items[key]) + 1})")
+        logger.debug(f"Add feature {key!r} (num: {len(self._items[key]) + 1}) in {self!r}")
         f_instance = self._parent_specs[key].schema.provide_user_class()()
         self._items[key].append(f_instance)
         return f_instance

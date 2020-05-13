@@ -1,5 +1,6 @@
 # Repo-specific files
 # -------------------
+*.json
 docs/build
 _TODO
 repo-setup.sh
