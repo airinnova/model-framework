@@ -35,6 +35,7 @@ Model framework
     |  (Properties)  |
 """
 
+from abc import abstractmethod, ABCMeta
 from collections.abc import MutableMapping
 from uuid import uuid4
 
@@ -431,9 +432,9 @@ class FeatureSpec(_BaseSpec):
 
         super().add_item_spec(key, schema, singleton=singleton, required=required, doc=doc)
 
-    def provide_user_class(self):
+    @property
+    def user_class(self):
         """Return a 'Feature' class with user and user methods"""
-
         return super()._provide_user_class_from_base(_FeatureUserSpace)
 
 
@@ -460,13 +461,14 @@ class ModelSpec(_BaseSpec):
 
         super().add_item_spec(key, feature_spec, singleton=singleton, required=required, doc=doc)
 
-    def provide_user_class(self):
+    @property
+    def user_class(self):
         """Return a 'Model' class with user and user methods"""
 
         return super()._provide_user_class_from_base(_ModelUserSpace)
 
 
-class _ModelUserSpace(_UserSpaceBase):
+class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
     _level = '$model'
 
     def from_dict(self, dictionary):
@@ -533,7 +535,7 @@ class _ModelUserSpace(_UserSpaceBase):
             raise RuntimeError(f"Method 'set_feature()' does not apply to {key!r}, try 'add_feature()'")
 
         logger.debug(f"Set feature {key!r} in {self!r}")
-        f_instance = self._parent_specs[key].schema.provide_user_class()()
+        f_instance = self._parent_specs[key].schema.user_class()
         self._items[key] = [f_instance, ]  # Store instance as list of length 1
         return f_instance
 
@@ -552,6 +554,13 @@ class _ModelUserSpace(_UserSpaceBase):
             raise RuntimeError(f"Method 'add_feature()' does not apply to {key!r}, try 'set_feature()'")
 
         logger.debug(f"Add feature {key!r} (num: {len(self._items[key]) + 1}) in {self!r}")
-        f_instance = self._parent_specs[key].schema.provide_user_class()()
+        f_instance = self._parent_specs[key].schema.user_class()
         self._items[key].append(f_instance)
         return f_instance
+
+    @abstractmethod
+    def run(self, *args, **kwargs):
+        # The 'run()' method is the main entry point for evaluating the user
+        # model. This method needs to be overridden in the subclass.
+        pass
+

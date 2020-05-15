@@ -15,7 +15,9 @@ EMAIL = 'dettmann@kth.se'
 DESCRIPTION = 'Framework to build consistent model interfaces'
 URL = 'https://github.com/airinnova/model-framework'
 REQUIRES_PYTHON = '>=3.6.0'
-REQUIRED = []
+REQUIRED = [
+    'schemadict',
+]
 README = 'README.rst'
 PACKAGE_DIR = 'src/'
 LICENSE = 'Apache License 2.0'

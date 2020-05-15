@@ -106,7 +106,9 @@ def test_to_dict_and_documentation():
     mspec.add_feature_spec('beam', fspec_beam, singleton=False, doc='A beam carries load')
     mspec.add_feature_spec('study', fspec_study, singleton=True, doc='Specify the type of study to run')
 
-    Model = mspec.provide_user_class()
+    class Model(mspec.user_class):
+        def run(self):
+            pass
     beam_model = Model()
 
     # ===== User logic =====

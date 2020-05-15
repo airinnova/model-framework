@@ -25,7 +25,9 @@ def test_basic():
     mspec.add_feature_spec('beam', fspec_beam, singleton=False)
     mspec.add_feature_spec('study', fspec_study, singleton=True)
 
-    Model = mspec.provide_user_class()
+    class Model(mspec.user_class):
+        def run(self):
+            pass
     beam_model = Model()
 
     # ===== User logic =====
@@ -66,7 +68,10 @@ def test_from_dict():
     mspec = ModelSpec()
     mspec.add_feature_spec('A', fspec1)
     mspec.add_feature_spec('B', fspec2)
-    Model = mspec.provide_user_class()
+
+    class Model(mspec.user_class):
+        def run(self):
+            pass
 
     props1 = {
         'a': [42, ],
@@ -117,10 +122,10 @@ def test_errors_add_feature_spec():
 
     # ----- Wrong type: feature_spec -----
     with pytest.raises(TypeError):
-        mspec_car.add_feature_spec('door', fspec_door.provide_user_class())
+        mspec_car.add_feature_spec('door', fspec_door.user_class)
 
     with pytest.raises(TypeError):
-        mspec_car.add_feature_spec('door', fspec_door.provide_user_class()())
+        mspec_car.add_feature_spec('door', fspec_door.user_class())
 
     # ----- Wrong type: singleton -----
     with pytest.raises(TypeError):
@@ -149,7 +154,10 @@ def test_error_set_feature():
     fspec.add_prop_spec('2', str, singleton=False)
     mspec.add_feature_spec('B', fspec, singleton=False)
 
-    m = mspec.provide_user_class()()
+    class Model(mspec.user_class):
+        def run(self):
+            pass
+    m = Model()
 
     # Feature 'A' is non-singleton
     with pytest.raises(RuntimeError):

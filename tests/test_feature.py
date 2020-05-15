@@ -24,7 +24,7 @@ def test_basic():
     with pytest.raises(KeyError):
         fspec.add_prop_spec('D', str)
 
-    Feature = fspec.provide_user_class()
+    Feature = fspec.user_class
     f = Feature()
 
     # ===== User logic =====
@@ -98,7 +98,7 @@ def test_complex_schema():
     fspec_aircraft.add_prop_spec('global', schema_global)
     fspec_aircraft.add_prop_spec('wing', schema_wing, singleton=False)
 
-    Aircraft = fspec_aircraft.provide_user_class()
+    Aircraft = fspec_aircraft.user_class
     aircraft = Aircraft()
 
     # ===== User logic =====
@@ -130,7 +130,7 @@ def test_from_dict():
     fspec.add_prop_spec('b', str)
     fspec.add_prop_spec('c', {'type': bool})
 
-    Feature = fspec.provide_user_class()
+    Feature = fspec.user_class
 
     props = {
         'a': [42, ],
@@ -178,14 +178,14 @@ def test_error_add_property_spec():
 
 def test_error_provide_user_class():
     """
-    Test method 'provide_user_class()'
+    Test method 'user_class'
     """
     print()
 
     fspec = FeatureSpec()
     fspec.add_prop_spec('a', int, singleton=True)
     fspec.add_prop_spec('b', int, singleton=False)
-    Feature = fspec.provide_user_class()
+    Feature = fspec.user_class
 
     f = Feature()
     f.set('a', 12)
