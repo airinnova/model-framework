@@ -1,0 +1,12 @@
+https://mermaid-js.github.io/mermaid-live-editor/#/edit/eyJjb2RlIjoiZ3JhcGggVERcbkFbTW9kZWxdIC0tPiBGMVtGZWF0dXJlIDFdXG5BIC0tPiBGMltGZWF0dXJlIDJdXG5BIC0tPiBGM1tGZWF0dXJlIDNdXG5GMSAtLT4gUDEoUHJvcGVydHkgQSlcbkYxIC0tPiBQMihQcm9wZXJ0eSBCKVxuIiwibWVybWFpZCI6eyJ0aGVtZSI6ImZvcmVzdCJ9fQ
+
+graph TD
+A[Model] --> F1[Feature 1]
+A --> F2[Feature 2]
+A --> F3[Feature 3]
+F1 --> P1(Property A)
+F1 --> P2(Property B)
+
+{
+ "theme": "forest"
+}
