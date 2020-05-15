@@ -131,7 +131,7 @@ def rst_general_usage():
 
     return RST_GENERAL_USAGE
 
-def doc2rst(doc, file_path=None):
+def doc2rst(doc, file_path=None, include_usage=True):
     """
     Convert model documentation to RST
 
@@ -145,9 +145,10 @@ def doc2rst(doc, file_path=None):
 
     rst = ""
 
-    rst += get_header(f"Model", level=0)
-    rst += '\n'
-    rst += rst_general_usage()
+    if include_usage:
+        rst += get_header(f"Model", level=0)
+        rst += '\n'
+        rst += rst_general_usage()
 
     for f_name, f_dict in doc.items():
         if f_name.startswith('$'):

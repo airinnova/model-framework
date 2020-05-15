@@ -44,45 +44,58 @@ def test_model_doc():
 
 exp_rst = \
 """Feature: beam
-=============
+-------------
 
 **Description**: A beam carries load
 **Singleton**: False
+
 **Required**: True
 
 Property: A [Parent feature: beam]
-----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Description**: Something about property A
+
 **Singleton**: True
+
 **Required**: False
+
 **Schema**:
-   * *type*: <class 'int'>
-   * *>*: 0
+
+* *type*: <class 'int'>
+* *>*: 0
 
 Property: B [Parent feature: beam]
-----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Description**: Property B is also great
+
 **Singleton**: False
+
 **Required**: False
+
 **Schema**:
-   * *type*: <class 'int'>
+
+* *type*: <class 'int'>
 
 Feature: study
-==============
+--------------
 
 **Description**: Specify the type of study to run
 **Singleton**: True
+
 **Required**: True
 
 Property: static [Parent feature: study]
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Singleton**: True
+
 **Required**: False
+
 **Schema**:
-   * *type*: <class 'bool'>
+
+* *type*: <class 'bool'>
 
 """
 
@@ -138,4 +151,6 @@ def test_to_dict_and_documentation():
 
     # ----- Documentation -----
     docs = mspec.get_docs()
-    assert doc2rst(docs) == exp_rst
+    gen_rst = doc2rst(docs, include_usage=False)
+    # print(gen_rst)
+    assert gen_rst == exp_rst
