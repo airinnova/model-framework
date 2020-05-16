@@ -1,0 +1,5 @@
+Tabler Icons
+============
+
+Source: https://github.com/tabler/tabler-icons
+Tabler Icons is licensed under the MIT License.

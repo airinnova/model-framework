@@ -192,6 +192,11 @@ class _BaseSpec:
         self.uid = str(uuid4())
         self._specs = SpecDict()
 
+    @property
+    def keys(self):
+        """Return all spec keys"""
+        return self._specs.keys()
+
     def __repr__(self):
         return f"<Specification for {tuple(self._specs.keys())!r}>"
 
@@ -277,6 +282,11 @@ class _UserSpaceBase:
 
     def __repr__(self):
         return f"<User space for {tuple(self._parent_specs.keys())!r}>"
+
+    @property
+    def keys(self):
+        """Return all item keys"""
+        return self._items.keys()
 
     def from_dict(self, d):
         """
@@ -562,5 +572,7 @@ class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
     def run(self, *args, **kwargs):
         # The 'run()' method is the main entry point for evaluating the user
         # model. This method needs to be overridden in the subclass.
+
+        # TODO: check required features and methods
         pass
 
