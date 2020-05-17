@@ -352,7 +352,7 @@ class _UserSpaceBase:
         self._check_against_schema(key, value)
 
         if not self._parent_specs[key].singleton:
-            raise RuntimeError(f"method 'set()' does not apply to {key!r}, try 'add()'")
+            raise RuntimeError(f"key {key!r}: method 'set()' does not apply, try 'add()'")
 
         logger.debug(f"Set property {key!r} = {value!r} in {self!r}")
         self._items[key] = [value, ]
@@ -372,7 +372,7 @@ class _UserSpaceBase:
             self._check_against_schema(key, value)
 
             if self._parent_specs[key].singleton:
-                raise RuntimeError(f"Method 'add()' does not apply to {key!r}, try 'set()'")
+                raise RuntimeError(f"key {key!r}: method 'add()' does not apply, try 'set()'")
 
             logger.debug(f"Add property {key!r} = {value!r} (num: {len(self._items[key])+1}) in {self!r}")
             self._items[key].append(value)
@@ -583,7 +583,7 @@ class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
         """
 
         if not self._parent_specs[key].singleton:
-            raise RuntimeError(f"Method 'set_feature()' does not apply to {key!r}, try 'add_feature()'")
+            raise RuntimeError(f"key {key!r}: method 'set_feature()' does not apply, try 'add_feature()'")
 
         logger.debug(f"Set feature {key!r} in {self!r}")
         f_instance = self._parent_specs[key].schema.user_class()
@@ -602,7 +602,7 @@ class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
         """
 
         if self._parent_specs[key].singleton:
-            raise RuntimeError(f"Method 'add_feature()' does not apply to {key!r}, try 'set_feature()'")
+            raise RuntimeError(f"key {key!r}: method 'add_feature()' does not apply, try 'set_feature()'")
 
         logger.debug(f"Add feature {key!r} (num: {len(self._items[key]) + 1}) in {self!r}")
         f_instance = self._parent_specs[key].schema.user_class()

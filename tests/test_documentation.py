@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mframework import FeatureSpec, ModelSpec, doc2rst, dump_pretty_json
+from mframework import FeatureSpec, ModelSpec, doc2rst
+from mframework._serialize import dump_pretty_json
 
 
 def test_feature_doc():
