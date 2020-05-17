@@ -46,8 +46,8 @@ properties. So, in our example propulsion might have the properties *thrust*
 and *type*, and the *wing* feature might have properties *span* and
 *mount_point* (e.g. for an engine, landing gear, or some other technical
 system). We may assign some values to each of these properties. For instance,
-we may set thrust to :math:`50\,\\textrm{kN}` or the span to
-:math:`20\,\\textrm{m}`. How do we set these values in a Python script?
+we may set thrust to :math:`50\\,\\textrm{kN}` or the span to
+:math:`20\\,\\textrm{m}`. How do we set these values in a Python script?
 
 .. code:: python
 
@@ -161,10 +161,31 @@ TODO
 
 RST_INTRO_MODEL_API = f"""Below you will find a comprehensive list of all
 available features and properties. The model object has the following features:
-
 \n\n
 """
 
+RST_INTRO_RESULT_API = f"""The method ``run()`` returns a ``Result`` object.
+You can interact  with this object in the same way as the ``Model`` object
+itself. The following results are available in the result object.
+\n\n
+"""
+
+HEADER = {
+    0: "=",
+    1: "-",
+    2: "~",
+    3: "^",
+}
+
+
+ICONS = {
+    'feature': 'archive.svg',
+    'property': 'parking.svg',
+    'description': 'notes.svg',
+    'required': 'lifebuoy.svg',
+    'singleton': 'point.svg',
+    'schema': 'clipboard-check.svg',
+}
 
 
 def gen_feature_graph(mspec):
@@ -213,54 +234,71 @@ def doc2rst(mspec, dir_path=None):
         :file_path: (str) output file
     """
 
+    file_path = os.path.join(dir_path, 'model_api_general.rst')
+    with open(file_path, "w") as fp:
+        fp.write(RST_GENERAL_USAGE)
+
+    # ===== Model documentation =====
+    rst = model_user_space_doc(mspec, header='Model', intro=RST_INTRO_MODEL_API)
+    file_path = os.path.join(dir_path, 'model_api.rst')
+    with open(file_path, "w") as fp:
+        fp.write(rst)
+
+    # ===== Result documentation =====
+    rst = model_user_space_doc(mspec.results, header='Results', intro=RST_INTRO_RESULT_API)
+    file_path = os.path.join(dir_path, 'result_api.rst')
+    with open(file_path, "w") as fp:
+        fp.write(rst)
+
+    return rst
+
+
+def model_user_space_doc(mspec, header='Model', intro=''):
+    """
+    TODO
+    """
+
+    # Result specifications may not always be defined
+    if mspec is None:
+        return ""
+
     doc = mspec.get_docs()
 
-    rst = ""
-    rst += get_header('Model', level=0)
-    rst += RST_INTRO_MODEL_API
-
+    rst = get_header(header, level=0)
+    rst += intro
     rst += gen_feature_graph(mspec)
 
-    for f_name, f_dict in doc.items():
-        if f_name.startswith('$'):
-            continue
-
-        rst += get_header(f"Feature: {f_name}", level=1)
-
-        f_main_doc = f_dict.get('main', '')
-        if f_main_doc:
+    def add_doc_section(d):
+        rst = ""
+        main_doc = d.get('main', '')
+        if main_doc:
             rst += f"{rst_add_icon('description')}*Description*: "
-            rst += f_main_doc
+            rst += main_doc
             rst += "\n\n"
 
         rst += f"{rst_add_icon('singleton')}*Singleton*: {f_dict['singleton']}\n\n"
         rst += f"{rst_add_icon('required')}*Required*: {f_dict['required']}\n\n"
+        return rst
 
+    for f_name, f_dict in doc.items():
+        # Skip special keys in the documentation dictionary
+        if f_name.startswith('$'):
+            continue
+
+        # ----- Feature -----
+        rst += get_header(f"Feature: {f_name}", level=1)
+        rst += add_doc_section(f_dict)
+
+        # ----- Properties -----
         for p_name, p_dict in f_dict['sub'].items():
             rst += get_header(f"Property: {p_name}", level=2)
             rst += gen_graph_property_relation(p_name, f_name)
-
-            p_main_doc = p_dict.get('main', '')
-            if p_main_doc:
-                rst += f"{rst_add_icon('description')}*Description*: "
-                rst += p_main_doc + '\n\n'
-
-            rst += f"{rst_add_icon('singleton')}*Singleton*: {p_dict['singleton']}\n\n"
-            rst += f"{rst_add_icon('required')}*Required*: {p_dict['required']}\n\n"
+            rst += add_doc_section(p_dict)
 
             p_schema_doc = p_dict.get('schema', '')
             if p_schema_doc:
                 rst += f"{rst_add_icon('schema')}*Schema*:\n\n"
                 rst += schemadict2rst(p_schema_doc)
-
-    if dir_path is not None:
-        file_path = os.path.join(dir_path, 'model_api_general.rst')
-        with open(file_path, "w") as fp:
-            fp.write(RST_GENERAL_USAGE)
-
-        file_path = os.path.join(dir_path, 'model_api.rst')
-        with open(file_path, "w") as fp:
-            fp.write(rst)
 
     return rst
 
@@ -300,14 +338,7 @@ def get_header(string, level=0):
         :rst: (str) RST documentation
     """
 
-    header = {
-        0: "=",
-        1: "-",
-        2: "~",
-        3: "^",
-    }
-
-    return f"{string}\n{header[level]*len(string)}\n\n"
+    return f"{string}\n{HEADER[level]*len(string)}\n\n"
 
 
 def rst_add_icon(icon_type):
@@ -315,17 +346,8 @@ def rst_add_icon(icon_type):
     TODO
     """
 
-    icons = {
-        'feature': 'archive.svg',
-        'property': 'parking.svg',
-        'description': 'notes.svg',
-        'required': 'lifebuoy.svg',
-        'singleton': 'point.svg',
-        'schema': 'clipboard-check.svg',
-    }
-
     rst = ""
-    rst += f".. image:: {URL_ICONS}/{icons[icon_type]}\n"
+    rst += f".. image:: {URL_ICONS}/{ICONS[icon_type]}\n"
     rst += f"   :align: left\n"
     rst += f"   :alt: {icon_type}\n"
     rst += "\n"

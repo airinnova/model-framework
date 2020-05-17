@@ -35,6 +35,10 @@ Model framework
     |  (Properties)  |
 """
 
+# TODO
+# * 'required' should accept a positive int indicating how many instances are needed
+# * Add check of required features/properties in 'run()' method
+
 from abc import abstractmethod, ABCMeta
 from collections.abc import MutableMapping
 from uuid import uuid4
@@ -330,7 +334,6 @@ class _UserSpaceBase:
         Return the model/feature default values
         """
 
-        # return schemadict.default_value_dict(self._parent_specs[key])
         raise NotImplementedError
 
     def set(self, key, value):
@@ -452,7 +455,24 @@ class _FeatureUserSpace(_UserSpaceBase):
     _level = '$feature'
 
 
-class ModelSpec(_BaseSpec):
+class ModelSpec(_BaseSpec, metaclass=ABCMeta):
+
+    def __init__(self):
+        super().__init__()
+
+        # The model specification also includes a specification of the result
+        # object which should be returned from the user space method 'run()'.
+        # The result object must be an instance of this class.
+        self._results = None
+
+    @property
+    def results(self):
+        return self._results
+
+    @results.setter
+    def results(self, results):
+        check_type('results', results, self.__class__)
+        self._results = results
 
     def add_feature_spec(self, key, feature_spec, *, singleton=True, required=True, doc=''):
         """
@@ -475,11 +495,29 @@ class ModelSpec(_BaseSpec):
     def user_class(self):
         """Return a 'Model' class with user and user methods"""
 
-        return super()._provide_user_class_from_base(_ModelUserSpace)
+        class Model(_ModelUserSpace):
+            # If the result user space is specified, pass it down to the model
+            # user space
+            _result_user_class = getattr(self.results, 'user_class', None)
+
+        return super()._provide_user_class_from_base(Model)
 
 
 class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
     _level = '$model'
+    _result_user_class = None  # Specification of the result object
+
+    def __init__(self):
+        super().__init__()
+
+        # If the MODEL user space is instantiated, the RESULT user space should
+        # also be instantiated (if is is defined).
+        self.results = None
+        if self._result_user_class is not None:
+            class Results(self._result_user_class):
+                def run(self):
+                    pass
+            self.results = Results()
 
     def from_dict(self, dictionary):
         """
@@ -571,8 +609,7 @@ class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
     @abstractmethod
     def run(self, *args, **kwargs):
         # The 'run()' method is the main entry point for evaluating the user
-        # model. This method needs to be overridden in the subclass.
+        # model. This method needs to be overridden in the subclass. This
+        # 'run()' method should return an instance of '_result_user_class'.
 
-        # TODO: check required features and methods
         pass
-
