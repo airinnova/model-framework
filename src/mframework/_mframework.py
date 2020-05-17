@@ -38,6 +38,9 @@ Model framework
 # TODO
 # * 'required' should accept a positive int indicating how many instances are needed
 # * Add check of required features/properties in 'run()' method
+# * Add tests
+#   - Result object
+#   - ...
 
 from abc import abstractmethod, ABCMeta
 from collections.abc import MutableMapping

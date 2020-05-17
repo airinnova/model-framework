@@ -154,7 +154,10 @@ evaluation of the model.
 Results
 -------
 
-TODO
+The ``run()`` method returns an object with which you can interact pretty much
+in the same way as the ``Model`` object. Results are group into "features"
+which have properties. You can retrieve data using the ``get()`` and ``iter()``
+methods mentioned above.
 
 \n
 """
@@ -170,7 +173,7 @@ itself. The following results are available in the result object.
 \n\n
 """
 
-HEADER = {
+UNDERLINE_SECTION = {
     0: "=",
     1: "-",
     2: "~",
@@ -191,6 +194,12 @@ ICONS = {
 def gen_feature_graph(mspec):
     """
     Generate a graph listing all the available features
+
+    Args:
+        :mspec: (obj) model specification
+
+    Returns:
+        :rst: (str) RST documentation
     """
 
     # TODO: check if 'mermaid' is available, or use alternative display...
@@ -207,7 +216,14 @@ def gen_feature_graph(mspec):
 
 def gen_graph_property_relation(prop_name, parent_feature):
     """
-    TODO
+    Return a graph showing the relation between a property and parent feature
+
+    Args:
+        :prop_name: (str) name of the property
+        :parent_feature: (str) name of the parent feature
+
+    Returns:
+        :rst: (str) RST documentation
     """
 
     # TODO: check if 'mermaid' is available, or use alternative display...
@@ -234,28 +250,36 @@ def doc2rst(mspec, dir_path=None):
         :file_path: (str) output file
     """
 
-    file_path = os.path.join(dir_path, 'model_api_general.rst')
-    with open(file_path, "w") as fp:
-        fp.write(RST_GENERAL_USAGE)
+    # ===== General usage =====
+    write2file(os.path.join(dir_path, 'model_api_general.rst'), RST_GENERAL_USAGE)
 
     # ===== Model documentation =====
     rst = model_user_space_doc(mspec, header='Model', intro=RST_INTRO_MODEL_API)
-    file_path = os.path.join(dir_path, 'model_api.rst')
-    with open(file_path, "w") as fp:
-        fp.write(rst)
+    write2file(os.path.join(dir_path, 'model_api.rst'), rst)
 
     # ===== Result documentation =====
     rst = model_user_space_doc(mspec.results, header='Results', intro=RST_INTRO_RESULT_API)
-    file_path = os.path.join(dir_path, 'result_api.rst')
-    with open(file_path, "w") as fp:
-        fp.write(rst)
+    write2file(os.path.join(dir_path, 'result_api.rst'), rst)
 
     return rst
 
 
+def write2file(file_path, text):
+    with open(file_path, "w") as fp:
+        fp.write(text)
+
+
 def model_user_space_doc(mspec, header='Model', intro=''):
     """
-    TODO
+    Auto-generate user documentation from a model specification
+
+    Args:
+        :mspec: (obj) model specification
+        :header: (str) page header
+        :intro: (str) introduction below header
+
+    Returns:
+        :rst: (str) RST documentation
     """
 
     # Result specifications may not always be defined
@@ -305,7 +329,13 @@ def model_user_space_doc(mspec, header='Model', intro=''):
 
 def schemadict2rst(sd):
     """
-    TODO
+    Return a readable presentation of a property schema
+
+    Args:
+        :sd: (dict) 'schemadict'
+
+    Returns:
+        :rst: (str) RST documentation
     """
 
     max_key_len = max([len(key) for key in sd.keys()]) + 4
@@ -338,12 +368,18 @@ def get_header(string, level=0):
         :rst: (str) RST documentation
     """
 
-    return f"{string}\n{HEADER[level]*len(string)}\n\n"
+    return f"{string}\n{UNDERLINE_SECTION[level]*len(string)}\n\n"
 
 
 def rst_add_icon(icon_type):
     """
-    TODO
+    Add an icon
+
+    Args:
+        :icon_type: (str) key from 'ICONS' dict
+
+    Returns:
+        :rst: (str) RST documentation
     """
 
     rst = ""

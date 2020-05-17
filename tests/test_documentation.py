@@ -150,7 +150,7 @@ def test_to_dict_and_documentation():
     assert beam1.get('B') == [2, 3]
 
     # ----- Documentation -----
-    gen_rst = doc2rst(mspec)
+    # gen_rst = doc2rst(mspec)
 
     # TODO: add asserts...
 
