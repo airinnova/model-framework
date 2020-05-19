@@ -3,9 +3,9 @@ Welcome to |name|'s documentation!
 
 .. image:: _static/images/logo.svg
     :alt: Logo
-    :width: 250 px
+    :width: 120 px
 
-TODO
+|Name| is a framework to build simple to use Python interfaces for complex models.
 
 .. toctree::
    :maxdepth: 1
@@ -14,12 +14,6 @@ TODO
    user_guide/installation
    user_guide/whatis
    tutorial/index.rst
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Links
-
-   references
 
 .. toctree::
    :maxdepth: 1
@@ -32,13 +26,6 @@ TODO
    :caption: Changelog
 
    CHANGELOG
-
-..
-    .. toctree::
-       :maxdepth: 1
-       :caption: Developer documentation
-
-       dev_doc/modules_main
 
 :Authors:
     |author1|

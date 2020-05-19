@@ -1,14 +1,14 @@
 .. _sec_tutorial:
 
-Tutorial
-========
+How do I use it?
+================
 
 This example will walk you through the basic process of building a model with the |name|, and also demonstrate how to provide a simple, and documented user interface.
 
 What we want to achieve?
 ------------------------
 
-Let's start at the end. What do we actually want to achieve here? We want to build a simple Python user interface for a model. As an example, let's consider a very simple aircraft model. We will implement the so-called `Breguet range equation <https://en.wikipedia.org/wiki/Range_(aeronautics)>`_ which can be used to estimate the range of an aircraft. According to the Breguet equtation, the range for a jet aircraft in cruise conditions can be estimated from the following relation.
+Let's start at the end. What do we actually want to achieve here? We want to build a simple Python user interface for a model. As an example, let's consider a very simple aircraft model. We will implement the so-called `Breguet range equation <https://en.wikipedia.org/wiki/Range_(aeronautics)>`_ which can be used to estimate the range of an aircraft. According to the Breguet equitation, the range for a jet aircraft in cruise conditions can be estimated from the following relation.
 
 .. math::
 
@@ -97,21 +97,24 @@ Okay, but so far the file ``_model.py`` is empty, and does not contain the objec
     :language: python
     :lines: 4-
 
-Finally, ...
+Finally, 
 
 .. literalinclude:: aircraft/_run.py
     :language: python
     :lines: 5-
 
-Using the user class
-~~~~~~~~~~~~~~~~~~~~
-
-**TODO**
+That's it! In this simplistic example, the procedure may rightfully seem very elaborate and perhaps overly complicate. However, for complex models this process pay off, not at least for the user documentation which can be generated fully automatically.
 
 How do we build user documentation?
 -----------------------------------
 
-**TODO**
+Below, you will see the actual script which is used to generated the documentation.
+
+.. literalinclude:: docgen.py
+    :language: python
+    :lines: 4-
+
+After running this script, we get the following pages:
 
 .. toctree::
    :maxdepth: 1
@@ -124,5 +127,6 @@ How do we build user documentation?
 Further options and references
 ------------------------------
 
+* TODO: mframework API doc
+* TODO: Link to schemadict documentation/repo
 * ...
-* Link to schemadict documentation/repo

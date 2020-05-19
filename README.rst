@@ -26,102 +26,25 @@
 
 ⚠ **Work in progress!** This project is in an early prototyping phase.
 
-Vision
-======
+What is 'model-framework'?
+==========================
 
-This *Python* package provides two classes (``FeatureSpec()`` and ``ModelSpec()``) to build simple, understandable and consistent user interfaces for (physics) models. A *model* is made up of *features*, and each feature is made up of *properties*. The *developer* defines the *model* using specifications of model *features* and feature *properties* (user input).
+..
+    ----------
 
-The end-user of the final model object can only interact with safe "setter" and "getter" methods of the specified model object. Due to the small number of simple methods which follow a clear "key-value paradigm" the model API is very easy to learn and to document. As a model developer, you can easily enforce user-input checks to avoid invalid data. Expected input is defined in a simple schema format, and user-input checks are performed when data entered by the user.
+Model-framework is a framework to build simple to use Python interfaces for complex models. For instance, a structural analysis tool (like `FramAT <https://github.com/airinnova/framat>`_) requires a number of user inputs parameters, for instance, for general settings, material or loads. It can be cumbersome to develop a consistent user interface for such a tool which has a large number of settings. Model-framework helps to build good Python user API's for complex models. In particular it aims to improve the following aspects of the developer and user experience.
 
-Basic system
-------------
+* Providing a simple to understand Python API to build and interact with complex models
+* Enforcing API consistency
+* User input validation
+* Full API documentation through automatic documentation generation
+* Flexible model extensibility
+* Clear separation between user input and solution routines
 
-* Provide specification classes that enable to easily define a complex (physics) models (e.g. a beam structure)
-* A *model* is made up of one or more *features* (singleton/non-singleton)
+..
+    ----------
 
-    * A model has user methods ``add_feature``, ``set_feature`` and ``get``/``iter``
-
-* Each feature has one or more *properties* (singleton/non-singleton)
-
-    * A feature has user methods ``set``/``add`` and ``get``/``iter`` methods to interact with properties
-
-Additional features
--------------------
-
-* Built-in validation of user data using *schemadicts*
-* Serialization of the entire model to disk (e.g. JSON) and deserialization
-* Auto-generation of user-documentation for the model interface
-* Model generation based on default values provided in the specifications in case of missing user input (!?)
-* Abstract method ``run()`` to run the entire model
-* Attach immediate actions to model definitions (?)
-
-Basic usage
-===========
-
-Developer code
---------------
-
-The model developer provides the specification of the model. Two classes are available:
-
-    * Class ``FeatureSpec()`` defines a feature with its properties.
-    * Class ``ModelSpec()`` defines a model with its features.
-
-.. code:: python
-
-    fspec_global = FeatureSpec()
-    fspec_global.add_prop_spec('name', str)
-    fspec_global.add_prop_spec('mass', float)
-    fspec_global.add_prop_spec('pax', int)
-
-    fspec_wing = FeatureSpec()
-    fspec_wing.add_prop_spec('span', float)
-    fspec_wing.add_prop_spec('area', {'type': float, '>': 0})
-
-    mspec_aircraft = ModelSpec()
-    mspec_aircraft.add_feature_spec('global', fspec_global, singleton=True)
-    mspec_aircraft.add_feature_spec('wing', fspec_wing, singleton=False)
-
-    Aircraft = mspec_aircraft.getUserModel()
-
-User code
----------
-
-The end-user builds the model with actual values. Errors are thrown if invalid data is provided.
-
-.. code:: python
-
-    from somewhere import Aircraft
-
-    ac = Aircraft()
-
-    glob_info = ac.add_feature('global')
-    glob_info.set('name', 'BoxWing')
-    glob_info.set('mass', 10e3)
-    glob_info.set('pax', 20)
-
-    main_wing = ac.add_feature('wing')
-    main_wing.set('span', 20)
-    main_wing.set('area', 40)
-
-    horiz_tail = ac.add_feature('wing')
-    horiz_tail.set('span', 6)
-    horiz_tail.set('area', 12)
-
-    ac.run()
-
-* A *model* has the following user methods
-
-    * ``set_feature()`` (for singleton features)
-    * ``add_feature()`` (for non-singleton features)
-    * ``get()``
-    * ``iter()`` (for non-singleton features)
-
-* A *feature* has the following user methods
-
-    * ``set()`` (for singleton features)
-    * ``add()`` (for non-singleton features)
-    * ``get()``
-    * ``iter()`` (for non-singleton features)
+Please refer do the `documentation <https://pypi.org/project/model-framework>`_ for more information.
 
 Installation
 ============

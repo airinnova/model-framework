@@ -81,6 +81,8 @@ rst_prolog = f"""
 .. |Name| replace:: {NAME.capitalize()}
 .. |author1| replace:: {AUTHOR_LIST[0]}
 .. |license| replace:: {LICENCE_NAME}
+.. |pypi_long| replace:: Python Package Index
+.. _pip: https://pip.pypa.io/en/stable/
 """
 
 # -- Options for HTML output -------------------------------------------------
