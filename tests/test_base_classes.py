@@ -9,8 +9,8 @@ def test_BaseSpec():
     class Spec(_BaseSpec):
         pass
     spec = Spec()
-    spec.add_item_spec('a', int)
-    spec.add_item_spec('b', int)
+    spec._add_item_spec('a', int)
+    spec._add_item_spec('b', int)
     assert repr(spec) == "<Specification for ('a', 'b')>"
 
 
@@ -19,8 +19,8 @@ def test_UserSpaceBase():
     class Spec(_BaseSpec):
         pass
     spec = Spec()
-    spec.add_item_spec('a', int)
-    spec.add_item_spec('b', float, singleton=False)
+    spec._add_item_spec('a', int)
+    spec._add_item_spec('b', float, singleton=False)
 
     class UserSpace(_UserSpaceBase):
         pass

@@ -207,7 +207,7 @@ class _BaseSpec:
     def __repr__(self):
         return f"<Specification for {tuple(self._specs.keys())!r}>"
 
-    def add_item_spec(self, key, schema, *, singleton=True, required=False, doc=''):
+    def _add_item_spec(self, key, schema, *, singleton=True, required=False, doc=''):
         """
         Add a specification entry
 
@@ -446,7 +446,7 @@ class FeatureSpec(_BaseSpec):
         if is_primitve_type(schema):
             schema = {'type': schema}
 
-        super().add_item_spec(key, schema, singleton=singleton, required=required, doc=doc)
+        super()._add_item_spec(key, schema, singleton=singleton, required=required, doc=doc)
 
     @property
     def user_class(self):
@@ -492,7 +492,7 @@ class ModelSpec(_BaseSpec, metaclass=ABCMeta):
         if not isinstance(feature_spec, FeatureSpec):
             raise TypeError(f"'feature_spec' must be instance of 'FeatureSpec'")
 
-        super().add_item_spec(key, feature_spec, singleton=singleton, required=required, doc=doc)
+        super()._add_item_spec(key, feature_spec, singleton=singleton, required=required, doc=doc)
 
     @property
     def user_class(self):

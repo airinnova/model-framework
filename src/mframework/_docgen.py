@@ -282,16 +282,17 @@ def model_user_space_doc(mspec, header='Model', intro=''):
         :rst: (str) RST documentation
     """
 
-    # Result specifications may not always be defined
-    if mspec is None:
-        return ""
-
-    doc = mspec.get_docs()
-
     rst = get_header(header, level=0)
     rst += intro
+
+    # Result specifications may not always be defined
+    if mspec is None:
+        rst += "*No specification.*\n"
+        return rst
+
     rst += gen_feature_graph(mspec)
 
+    doc = mspec.get_docs()
     def add_doc_section(d):
         rst = ""
         main_doc = d.get('main', '')

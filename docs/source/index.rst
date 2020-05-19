@@ -4,18 +4,19 @@ Welcome to |name|'s documentation!
 .. image:: _static/images/logo.svg
     :alt: Logo
     :width: 250 px
-    :scale: 100 %
 
 TODO
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: User guide
 
    user_guide/installation
+   user_guide/whatis
+   tutorial/index.rst
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Links
 
    references

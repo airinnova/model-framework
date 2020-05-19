@@ -37,6 +37,7 @@ version = __version__
 # ######### AUTOMATE THINGS ##########
 # ====================================
 os.system('bash ./dev_doc/gen_auto_doc.sh')
+os.system('python ./tutorial/docgen.py')
 
 # -- General configuration ---------------------------------------------------
 extensions = [
@@ -46,6 +47,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     # 'sphinx.ext.viewcode',
     'sphinx.ext.autosummary',
+    'sphinxcontrib.mermaid',
 ]
 
 # Paths that contain templates here, relative to this directory.
@@ -76,6 +78,7 @@ pygments_style = None
 rst_prolog = f"""
 .. |name| replace:: {NAME}
 .. |name_bold| replace:: **{NAME}**
+.. |Name| replace:: {NAME.capitalize()}
 .. |author1| replace:: {AUTHOR_LIST[0]}
 .. |license| replace:: {LICENCE_NAME}
 """
