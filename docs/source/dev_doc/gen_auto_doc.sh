@@ -4,6 +4,6 @@
 
 cd $(dirname $0)
 
-sphinx-apidoc -f -o . ../../../src/mframework/
+sphinx-apidoc -f --private -o . ../../../src/mframework/ ../../../src/mframework/__version__.py
 # sed -i -e '1,3d' modules.rst
 

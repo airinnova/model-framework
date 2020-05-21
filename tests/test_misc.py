@@ -7,8 +7,10 @@ Test various building blocks
 
 import pytest
 
-import mframework._log as log
 import mframework._mframework as mf
+import mframework._log as log
+from mframework import enable_logger
+enable_logger()
 
 
 def test_log():

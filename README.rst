@@ -32,7 +32,7 @@ What is 'model-framework'?
 ..
     ----------
 
-Model-framework is a framework to build simple to use Python interfaces for complex models. For instance, a structural analysis tool (like `FramAT <https://github.com/airinnova/framat>`_) requires a number of user inputs parameters, for instance, for general settings, material or loads. It can be cumbersome to develop a consistent user interface for such a tool which has a large number of settings. Model-framework helps to build good Python user API's for complex models. In particular it aims to improve the following aspects of the developer and user experience.
+Model-framework is a framework to build simple to use Python interfaces for complex models. For instance, a structural analysis tool (like `FramAT <https://github.com/airinnova/framat>`_) requires a number of user inputs parameters, for instance, for general settings, material or loads. It can be cumbersome to develop a consistent user interface for such a tool which has a large number of settings. Model-framework helps to build good Python user API's for complex models. In particular it aims to improve the following aspects of the developer and user experiences.
 
 * Providing a simple to understand Python API to build and interact with complex models
 * Enforcing API consistency
@@ -44,7 +44,7 @@ Model-framework is a framework to build simple to use Python interfaces for comp
 ..
     ----------
 
-Please refer do the `documentation <https://pypi.org/project/model-framework>`_ for more information.
+Please refer do the `documentation <https://mframework.readthedocs.io>`_ for more information.
 
 Installation
 ============

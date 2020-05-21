@@ -14,54 +14,38 @@ Let's start at the end. What do we actually want to achieve here? We want to bui
 
     R = \frac{a \, M}{g \, c_\textrm{T}} \, \frac{C_\textrm{L}}{C_\textrm{D}} \, \textrm{ln} \, \frac{m_1}{m_2}
 
-* :math:`R`: range
-* :math:`a`: speed of sound
-* :math:`M`: Mach number
-* :math:`c_\textrm{t}`: thrust specific fuel consumption
-* :math:`C_\textrm{L}`: lift coefficient
-* :math:`C_\textrm{D}`: drag coefficient
-* :math:`m_1`: initial mass
-* :math:`m_2`: final mass
+* :math:`R`: range [m]
+* :math:`a`: speed of sound [m/s]
+* :math:`M`: Mach number [1]
+* :math:`c_\textrm{T}`: thrust specific fuel consumption [kg/(s*N)]
+* :math:`C_\textrm{L}`: lift coefficient [1]
+* :math:`C_\textrm{D}`: drag coefficient [1]
+* :math:`m_1`: initial mass [kg]
+* :math:`m_2`: final mass [kg]
 
-The exact meaning, derivation and limitation of this formula are not relevant for the following discussion. What we want, is to provide a Python API which picks up and validates the user input. The user API can be used in the following way:
+The exact derivation and limitation of this formula are not relevant for the following discussion. What we want, is to provide a Python API which picks up and validates the user input. The user API can be used in the following way:
 
-.. code:: python
+.. literalinclude:: example.py
+    :lines: 4-
+    :language: python
 
-    >>> from aircraft import Model
+When running this example, we get rages for the chosen combinations of initial and final masses.
 
-    >>> # First, we create a new aircraft model instance
-    >>> ac = Model()
+..
+    # Add to PYTHONPATH, to run doctest on the following example
+    >>> import sys
+    >>> sys.path.append("docs/source/tutorial/")
+    >>>
 
-    >>> # In our case the aircraft model, will have the feature 'aerodynamics'.
-    >>> # Below, we first create an instance of this feature, and subsequently
-    >>> # we assign numerical values to the aerodynamic properties.
-    >>> aero = ac.set_feature('aerodynamics')
-    >>> aero.set('CL', 1.5)
-    >>> aero.set('CD', 0.005)
-    >>> aero.set('Mach', 0.8)
+.. code::
 
-    >>> # Our aircraft model also has a 'propulsion' feature.
-    >>> # In this feature we set the specific fuel consumption.
-    >>> prop = ac.set_feature('propulsion')
-    >>> prop.set('cT', 1.5)
-
-    >>> # Finally, we have a third feature called 'mass' which we will make
-    >>> # 'non-singleton' for demonstration purposes. So let's assign values
-    >>> # to masses 'm1' and 'm2'
-    >>> mass_conf1 = ac.add_feature('mass')
-    >>> mass_conf1.set('m1', 1)
-    >>> mass_conf1.set('m2', 2)
-
-    >>> # We may also add a second mass configuration, for example:
-    >>> mass_conf2 = ac.add_feature('mass')
-    >>> mass_conf2.set('m1', 2)
-    >>> mass_conf2.set('m2', 3)
-
-    >>> # Once, we have set up the model we can call the 'run()' method which
-    >>> # will compute the range for both configurations and print the results.
-    >>> ac.run()
-    The range for xx and yy is: xxx km
-    The range for xx and yy is: xxx km
+    >>> import example
+    Range: 15914.1 km (m1: 70.0 t | m2: 35.0 t)
+    Range: 12848.3 km (m1: 70.0 t | m2: 40.0 t)
+    Range: 10144.1 km (m1: 70.0 t | m2: 45.0 t)
+    Range:  7725.1 km (m1: 70.0 t | m2: 50.0 t)
+    Range:  5536.9 km (m1: 70.0 t | m2: 55.0 t)
+    Range:  3539.2 km (m1: 70.0 t | m2: 60.0 t)
     >>>
 
 Of course, the model discussed here is very simple, and it would not make sense to provide such an elaborate and explicit API to solve the simple range formula. However, for complex models it may become much harder to provide a user interface which is simple to use and extensible, and it may become hard to document all available user inputs. The |name| addresses these issues.
@@ -81,7 +65,7 @@ We will assume the following file structure for our example:
         _model.py
         _run.py
 
-Our goal is to provide the ``Model`` object that we used above and that provide all user methods. Why we organize our module Python files in the structure as suggested above, will hopefully become clearer as we go along in this tutorial.
+Our goal is to provide the ``Model`` object that we used above and that provides all user methods. Why we organize our module Python files in the structure as suggested above, will hopefully become clearer as we go along in this tutorial.
 
 Building the user class
 -----------------------
@@ -97,18 +81,18 @@ Okay, but so far the file ``_model.py`` is empty, and does not contain the objec
     :language: python
     :lines: 4-
 
-Finally, 
+When defining the method ``run()`` in ``Model``, we passed the model instance to another method called ``run_model``. We define this method in the file ``_run.py``.
 
 .. literalinclude:: aircraft/_run.py
     :language: python
-    :lines: 5-
+    :lines: 4-
 
-That's it! In this simplistic example, the procedure may rightfully seem very elaborate and perhaps overly complicate. However, for complex models this process pay off, not at least for the user documentation which can be generated fully automatically.
+That's it. In this simplistic example, the procedure may rightfully seem very elaborate and perhaps overly complicate. However, for complex models this process pay off, not at least for the user documentation which can be generated fully automatically.
 
 How do we build user documentation?
 -----------------------------------
 
-Below, you will see the actual script which is used to generated the documentation.
+Below, you will see the actual script which is used to generate the documentation in this tutorial.
 
 .. literalinclude:: docgen.py
     :language: python
@@ -118,7 +102,6 @@ After running this script, we get the following pages:
 
 .. toctree::
    :maxdepth: 1
-   :caption: Auto-generated documentation
 
    autodoc/model_api_general
    autodoc/model_api
@@ -127,6 +110,8 @@ After running this script, we get the following pages:
 Further options and references
 ------------------------------
 
-* TODO: mframework API doc
-* TODO: Link to schemadict documentation/repo
-* ...
+:API documentation:
+    For a more comprehensive overview about the functionality, please check out the API documentation for |name|.
+
+:schemadict:
+    More details about *schemadict* can be found here: https://github.com/airinnova/schemadict.

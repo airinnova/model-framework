@@ -3,6 +3,8 @@
 
 from mframework import FeatureSpec, ModelSpec, doc2rst
 from mframework._serialize import dump_pretty_json
+from mframework import enable_logger
+enable_logger()
 
 
 def test_feature_doc():

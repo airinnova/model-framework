@@ -28,9 +28,8 @@ import logging
 from . import MODULE_NAME
 
 FORMAT = f"%(levelname)s | {MODULE_NAME} | %(message)s"
-logging.basicConfig(level=logging.DEBUG, format=FORMAT)
+logging.basicConfig(level=logging.ERROR, format=FORMAT)
 logger = logging.getLogger(MODULE_NAME)
-
 
 def disable_logger():
     logger.setLevel(logging.ERROR)

@@ -10,10 +10,112 @@ available features and properties. The model object has the following features:
 
     graph TD
     A[Model]
-    A --> F0[aerodynamics]
-    A --> F1[propulsion]
-    A --> F2[mass]
+    A --> F0[ambiance]
+    A --> F1[aerodynamics]
+    A --> F2[propulsion]
+    A --> F3[mass]
 
+
+Feature: ambiance
+-----------------
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
+   :align: left
+   :alt: description
+
+*Description*: Ambient flight conditions
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
+   :align: left
+   :alt: singleton
+
+*Singleton*: True
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
+   :align: left
+   :alt: required
+
+*Required*: True
+
+Property: g
+~~~~~~~~~~~
+
+.. mermaid::
+
+    graph LR
+    A[Model]
+    A --> F1[ambiance] 
+    F1 --> P1[g] 
+
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
+   :align: left
+   :alt: description
+
+*Description*: Gravitational acceleration
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
+   :align: left
+   :alt: singleton
+
+*Singleton*: True
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
+   :align: left
+   :alt: required
+
+*Required*: True
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
+   :align: left
+   :alt: schema
+
+*Schema*:
+
+======== ===============
+**type** <class 'float'>
+ **>**          0       
+======== ===============
+
+Property: a
+~~~~~~~~~~~
+
+.. mermaid::
+
+    graph LR
+    A[Model]
+    A --> F1[ambiance] 
+    F1 --> P1[a] 
+
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
+   :align: left
+   :alt: description
+
+*Description*: Speed of sound
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
+   :align: left
+   :alt: singleton
+
+*Singleton*: True
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
+   :align: left
+   :alt: required
+
+*Required*: True
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
+   :align: left
+   :alt: schema
+
+*Schema*:
+
+======== ===============
+**type** <class 'float'>
+ **>**          0       
+======== ===============
 
 Feature: aerodynamics
 ---------------------
@@ -22,7 +124,7 @@ Feature: aerodynamics
    :align: left
    :alt: description
 
-*Description*: TODO
+*Description*: Aerodynamic properties
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
@@ -46,6 +148,12 @@ Property: CL
     A --> F1[aerodynamics] 
     F1 --> P1[CL] 
 
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
+   :align: left
+   :alt: description
+
+*Description*: Cruise lift coefficient
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
@@ -81,6 +189,12 @@ Property: CD
     F1 --> P1[CD] 
 
 
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
+   :align: left
+   :alt: description
+
+*Description*: Cruise drag coefficient
+
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
    :alt: singleton
@@ -115,6 +229,12 @@ Property: Mach
     F1 --> P1[Mach] 
 
 
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
+   :align: left
+   :alt: description
+
+*Description*: Cruise Mach number
+
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
    :alt: singleton
@@ -145,7 +265,7 @@ Feature: propulsion
    :align: left
    :alt: description
 
-*Description*: TODO
+*Description*: Profusion properties
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
@@ -169,6 +289,12 @@ Property: cT
     A --> F1[propulsion] 
     F1 --> P1[cT] 
 
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
+   :align: left
+   :alt: description
+
+*Description*: Thrust specific fuel consumption
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
@@ -200,7 +326,7 @@ Feature: mass
    :align: left
    :alt: description
 
-*Description*: TODO
+*Description*: Mass properties
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
@@ -225,6 +351,12 @@ Property: m1
     F1 --> P1[m1] 
 
 
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
+   :align: left
+   :alt: description
+
+*Description*: Initial aircraft mass (at start of cruise)
+
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
    :alt: singleton
@@ -243,10 +375,10 @@ Property: m1
 
 *Schema*:
 
-======== =============
-**type** <class 'int'>
- **>**         0      
-======== =============
+======== ===============
+**type** <class 'float'>
+ **>**          0       
+======== ===============
 
 Property: m2
 ~~~~~~~~~~~~
@@ -259,6 +391,12 @@ Property: m2
     F1 --> P1[m2] 
 
 
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
+   :align: left
+   :alt: description
+
+*Description*: Final aircraft mass (at end of cruise)
+
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
    :alt: singleton
@@ -277,8 +415,8 @@ Property: m2
 
 *Schema*:
 
-======== =============
-**type** <class 'int'>
- **>**         0      
-======== =============
+======== ===============
+**type** <class 'float'>
+ **>**          0       
+======== ===============
 

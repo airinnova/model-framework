@@ -17,6 +17,12 @@ itself. The following results are available in the result object.
 Feature: flight_mission
 -----------------------
 
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
+   :align: left
+   :alt: description
+
+*Description*: Flight mission data
+
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
    :alt: singleton
@@ -39,6 +45,12 @@ Property: range
     A --> F1[flight_mission] 
     F1 --> P1[range] 
 
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
+   :align: left
+   :alt: description
+
+*Description*: Estimated range of the aircraft
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left

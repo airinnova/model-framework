@@ -23,6 +23,8 @@
 Model framework
 ===============
 
+.. code::
+
     |   User space   |       Specification
     |   ----------   |       -------------
     |                |
