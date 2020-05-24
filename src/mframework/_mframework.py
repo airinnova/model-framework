@@ -514,15 +514,7 @@ class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
 
     def __init__(self):
         super().__init__()
-
-        # If the MODEL user space is instantiated, the RESULT user space should
-        # also be instantiated (if is is defined).
         self.results = None
-        if self._result_user_class is not None:
-            class Results(self._result_user_class):
-                def run(self):
-                    pass
-            self.results = Results()
 
     def from_dict(self, dictionary):
         """
@@ -613,8 +605,19 @@ class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
 
     @abstractmethod
     def run(self, *args, **kwargs):
-        # The 'run()' method is the main entry point for evaluating the user
-        # model. This method needs to be overridden in the subclass. This
-        # 'run()' method should return an instance of '_result_user_class'.
+        """
+        The 'run()' method is the main entry point for evaluating the user
+        model. This method needs to be overridden in the subclass. The 'run()'
+        method should return an instance of '_result_user_class'. When
+        implementing 'run()' in the subclass, the superclass 'run()' method
+        should first be called with 'super().run()'.
+        """
 
-        pass
+        # Instantiate the RESULT user if defined
+        if self._result_user_class is not None:
+            class Results(self._result_user_class):
+                def run(self):
+                    raise NotImplementedError
+            self.results = Results()
+
+        # TODO: check required features, properties...
