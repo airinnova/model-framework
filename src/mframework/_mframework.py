@@ -48,7 +48,7 @@ from abc import abstractmethod, ABCMeta
 from collections.abc import MutableMapping
 from uuid import uuid4
 
-from schemadict import schemadict
+from schemadict import schemadict, STANDARD_VALIDATORS
 
 from ._log import logger
 
@@ -64,6 +64,9 @@ def check_type(var_name, var, exp_type):
         raise TypeError(
             f"invalid type for {var_name!r}: expected {exp_type}, got {type(var)}"
         )
+
+
+SchemadictValidators = STANDARD_VALIDATORS
 
 
 class DictLike(MutableMapping):
@@ -221,7 +224,7 @@ class _BaseSpec:
             :doc: (str) documentation
 
         Note:
-            * 'schema' should be a primitive type or a schemadict if a this
+            * 'schema' should be a primitive type or a 'schemadict' if a this
                class describes a feature. It should be an instance of
                'FeatureSpec' if this class describes a model.
             * When calling from subclass, add a user input check for 'schema'
@@ -419,12 +422,14 @@ class _UserSpaceBase:
         if isinstance(self._parent_specs[key].schema, dict):
             if not isinstance(value, dict):
                 schemadict(
-                    {f"{key}": self._parent_specs[key].schema}
-                ).validate(
-                    {f"{key}": value}
-                )
+                    {f"{key}": self._parent_specs[key].schema},
+                    validators=SchemadictValidators,
+                ).validate({f"{key}": value})
             else:
-                schemadict(self._parent_specs[key].schema).validate(value)
+                schemadict(
+                    self._parent_specs[key].schema,
+                    validators=SchemadictValidators
+                ).validate(value)
 
 
 class FeatureSpec(_BaseSpec):
@@ -435,14 +440,14 @@ class FeatureSpec(_BaseSpec):
 
         Args:
             :key: (str) name of property to specify
-            :schema: (obj) specification (primitive type, or schemadict)
+            :schema: (obj) specification (primitive type, or 'schemadict')
             :singleton: (bool) if True, make item singleton
             :required: (bool) if True, make item required
             :doc: (str) documentation
         """
 
         if not (is_primitve_type(schema) or isinstance(schema, dict)):
-            raise TypeError(f"'schema' must be a primitive type or a schemadict")
+            raise TypeError(f"'schema' must be a primitive type or a 'schemadict'")
 
         # Always use a schemadict
         if is_primitve_type(schema):
