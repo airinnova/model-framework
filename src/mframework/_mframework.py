@@ -385,8 +385,7 @@ class _UserSpaceBase:
             logger.debug(f"Add property {key!r} = {value!r} (num: {len(self._items[key])+1}) in {self!r}")
             self._items[key].append(value)
 
-    # TODO: add 'default' argument???
-    def get(self, key):
+    def get(self, key, default=None):
         """
         Return a value (singleton/non-singleton)
 
@@ -396,6 +395,14 @@ class _UserSpaceBase:
         Returns:
             :value: (obj) value of the item
         """
+
+        # Always throw error if key is not in specification
+        self._check_key_in_spec(key)
+
+        # Return the default if key is not in the '_items' dict.
+        # Note that '_items' is a defaultdict(list).
+        if not self._items[key]:
+            return default
 
         if self._parent_specs[key].singleton:
             return self._items[key][0]
