@@ -23,17 +23,14 @@
 Logger for debug purposes
 """
 
-import logging
+from commonlibs.log import PackageLogger
 
 from . import MODULE_NAME
 
-FORMAT = f"%(levelname)s | {MODULE_NAME} | %(message)s"
-logging.basicConfig(level=logging.ERROR, format=FORMAT)
-logger = logging.getLogger(MODULE_NAME)
+_plogger = PackageLogger(MODULE_NAME)
+logger = _plogger.logger
+enable_logger = _plogger.enable
+disable_logger = _plogger.disable
 
-def disable_logger():
-    logger.setLevel(logging.ERROR)
-
-
-def enable_logger():
-    logger.setLevel(logging.DEBUG)
+# Disable logger by default
+disable_logger()

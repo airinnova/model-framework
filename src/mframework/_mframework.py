@@ -43,6 +43,9 @@ Model framework
 # * Add tests
 #   - Result object
 #   - ...
+# * Get code of current model object state...
+# * Long-term plan: GUI
+
 
 from abc import abstractmethod, ABCMeta
 from collections.abc import MutableMapping
@@ -382,6 +385,7 @@ class _UserSpaceBase:
             logger.debug(f"Add property {key!r} = {value!r} (num: {len(self._items[key])+1}) in {self!r}")
             self._items[key].append(value)
 
+    # TODO: add 'default' argument???
     def get(self, key):
         """
         Return a value (singleton/non-singleton)

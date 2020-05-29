@@ -16,6 +16,7 @@ DESCRIPTION = 'Framework to build consistent model interfaces'
 URL = 'https://github.com/airinnova/model-framework'
 REQUIRES_PYTHON = '>=3.6.0'
 REQUIRED = [
+    'commonlibs',
     'schemadict',
 ]
 README = 'README.rst'
