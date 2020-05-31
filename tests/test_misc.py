@@ -80,11 +80,18 @@ def test_ItemDict():
     d = mf.ItemDict()
     assert d['x'] == []
 
-    d['y'].append(1)
-    d['y'].append(2)
-    d['y'].append(3)
+    d['y'] = 1
+    d['y'] = 2
+    d['y'] = 3
     assert len(d['y']) == 3
     assert d['y'] == [1, 2, 3]
+
+    # Test assigning UIDs
+    d.assign_uid('y', 'special_entry')
+    assert 3 == d.get_by_uid('y', 'special_entry')
+
+    d.assign_uid('y', 'another_special_entry', 1)
+    assert 2 == d.get_by_uid('y', 'another_special_entry')
 
 
 def test_SpecEntry():

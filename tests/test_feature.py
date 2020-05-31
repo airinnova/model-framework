@@ -191,7 +191,7 @@ def test_error_provide_user_class():
 
     f = Feature()
     f.set('a', 12)
-    f.add('b', 11, 22, 33)
+    f.add_many('b', 11, 22, 33)
 
     with pytest.raises(KeyError):
         f.set('x', 55)
