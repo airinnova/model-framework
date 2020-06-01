@@ -113,7 +113,18 @@ class DictLike(MutableMapping):
         return len(self.mapping)
 
 
-class SpecDict(DictLike):
+class UniqueDict(DictLike):
+    """
+    Values cannot be reassigned if a key is already in the dictionary.
+    """
+
+    def __setitem__(self, key, value):
+        if key in self.mapping.keys():
+            raise KeyError(f"key {key!r}: entry already defined")
+        super().__setitem__(key, value)
+
+
+class SpecDict(UniqueDict):
     """
     Specification dictionary.
 
@@ -121,8 +132,6 @@ class SpecDict(DictLike):
     """
 
     def __setitem__(self, key, value):
-        if key in self.mapping.keys():
-            raise KeyError(f"key {key!r}: entry already defined")
         if not isinstance(value, SpecEntry):
             raise ValueError(f"key {key!r}: value must be instance of 'SpecEntry'")
         super().__setitem__(key, value)
@@ -132,10 +141,10 @@ class ItemDict(MutableMapping):
 
     def __init__(self, *args, **kwargs):
         """
-        General purpose dictionary that groups items according to a 'type' in a
-        sub-dictionary with integers as keys. Note that multiple assignments do
-        not overwrite the previous value, but add a new entry in the
-        sub-dictionary.
+        General purpose dictionary that groups items according to a 'type'
+        (main key) in a sub-dictionary with integers as sub keys. Note that
+        multiple assignments to the same main key do not overwrite the previous
+        value, but add a new entry in the sub-dictionary.
 
         Example:
 
@@ -149,64 +158,69 @@ class ItemDict(MutableMapping):
 
         Notes:
 
-            * The type key (ktype) must be a string.
+            * The main key (kmain) must be a string.
             * To easily find items, UIDs can be assigned to specific values.
         """
 
-        # Maps [ktype][item_num] --> value
-        self.mapping = {}
-        # Maps [ktype][uid] --> item_num
-        self.uids = {}
+        self._map = dict()  # Maps [kmain][idx] --> value
+        self._uid = dict()  # Maps [kmain][uid] --> idx
+        self._idx = dict()  # Maps [kmain][idx] --> uid
         self.update(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.mapping!r}"
+        return f"{self._map!r}"
 
     def __repr__(self):
-        return f"< {self.__class__.__qualname__}({self.mapping!r}) >"
+        return f"< {self.__class__.__qualname__}({self._map!r}) >"
 
-    def __setitem__(self, ktype, value):
-        if not isinstance(ktype, str):
-            raise TypeError(f"invalid key {ktype!r}: must be of type {str}, not {type(ktype)}")
+    def __setitem__(self, kmain, value):
+        if not isinstance(kmain, str):
+            raise TypeError(
+                f"invalid key {kmain!r}: must be of type {str}, not {type(kmain)}"
+            )
 
-        if ktype not in self.mapping.keys():
-            self.__missing__(ktype)
-            self.mapping[ktype][0] = value
+        if kmain not in self._map.keys():
+            self.__missing__(kmain)
+            self._map[kmain][0] = value
         else:
-            self.mapping[ktype][len(self.mapping[ktype])] = value
+            self._map[kmain][len(self._map[kmain])] = value
 
-    def __getitem__(self, ktype):
-        """Returns a list of values"""
-        if ktype not in self.mapping.keys():
-            self.__missing__(ktype)
-        return list(self.mapping[ktype].values())
+    def __getitem__(self, kmain):
+        if kmain not in self._map.keys():
+            self.__missing__(kmain)
+        return self._map[kmain]
 
-    def __missing__(self, ktype):
-        self.mapping[ktype] = dict()
-        self.uids[ktype] = dict()
+    def __missing__(self, kmain):
+        self._map[kmain] = dict()
+        self._uid[kmain] = UniqueDict()  # A UID cannot be set twice
+        self._idx[kmain] = dict()
 
-    def __delitem__(self, ktype):
-        # Do not throw an error if 'ktype' does not exist
+    def __delitem__(self, kmain):
+        # Do not throw an error if 'kmain' does not exist
         try:
-            del self.mapping[ktype]
-            del self.uids[ktype]
+            del self._map[kmain]
+            del self._uid[kmain]
+            del self._idx[kmain]
         except KeyError:
             pass
 
     def __iter__(self):
-        return iter(self.mapping)
+        return iter(self._map)
 
     def __len__(self):
-        return len(self.mapping)
+        return len(self._map)
 
-    def assign_uid(self, ktype, uid, item_num=-1):
+    def len_of_type(self, kmain):
+        return len(self._map[kmain])
+
+    def assign_uid(self, kmain, uid, idx=-1):
         """
         Assign a UID to a specific value
 
         Args:
-            :ktype: (str) type key
-            :uid: (str) UID
-            :item_num: (int) number of item to assign the UID
+            :kmain: (str) main key (= type)
+            :uid: (str) unique identifier
+            :idx: (int) item index to assign the UID
 
         Note:
 
@@ -214,16 +228,34 @@ class ItemDict(MutableMapping):
         """
 
         # Get index of last entry
-        if item_num < 0:
-            item_num = self.len_of_type(ktype) - 1
-        self.uids[ktype][uid] = item_num
+        if idx < 0:
+            idx = self.len_of_type(kmain) - 1
 
-    def get_by_uid(self, key, uid):
-        item_num = self.uids[key][uid]
-        return self.mapping[key][item_num]
+        self._uid[kmain][uid] = idx
+        self._idx[kmain][idx] = uid
 
-    def len_of_type(self, ktype):
-        return len(self.mapping[ktype])
+    def get_by_uid(self, kmain, uid):
+        """
+        Return the value for a UID
+
+        Args:
+            :kmain: (str) main key (= type)
+            :uid: (str) unique identifier
+        """
+
+        idx = self._uid[kmain][uid]
+        return self._map[kmain][idx]
+
+    def iter_by_uid(self, kmain):
+        """
+        Yield (uid, value) for a main key
+
+        Args:
+            :kmain: (str) main key (= type)
+        """
+
+        for idx in sorted(self._uid[kmain].values()):
+            yield self._idx[kmain][idx], self._map[kmain][idx]
 
 
 class SpecEntry:
@@ -434,7 +466,7 @@ class _UserSpaceBase:
         return {
             '$level': self._level,
             '$uid': self.uid,
-            **dict(self._items)
+            **{k: list(v.values()) for k, v in self._items.items()}
         }
 
     def get_default(self, key):
@@ -489,7 +521,7 @@ class _UserSpaceBase:
         for value in values:
             self.add(key, value)
 
-    def get(self, key, *, uid=None, default=None):
+    def get(self, key, default=None, *, uid=None):
         """
         Return a value (singleton/non-singleton)
 
@@ -517,7 +549,7 @@ class _UserSpaceBase:
             if uid is not None:
                 return self._items.get_by_uid(key, uid)
             else:
-                return self._items[key]
+                return list(self._items[key].values())
 
     def iter(self, key):
         """
@@ -530,7 +562,7 @@ class _UserSpaceBase:
         if self._parent_specs[key].singleton:
             raise KeyError(f"Method 'iter()' not supported for item {key!r}, try 'get()'")
 
-        yield from self._items[key]
+        yield from list(self._items[key].values())
 
     def len(self, key):
         return len(self._items[key])
@@ -701,7 +733,7 @@ class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
         }
         for key, features in self._items.items():
             model_dict[key] = []
-            for feature in features:
+            for feature in features.values():
                 model_dict[key].append(feature.to_dict())
         return model_dict
 

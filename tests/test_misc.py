@@ -78,13 +78,13 @@ def test_SpecDict():
 
 def test_ItemDict():
     d = mf.ItemDict()
-    assert d['x'] == []
+    assert d['x'] == {}
 
     d['y'] = 1
     d['y'] = 2
     d['y'] = 3
     assert len(d['y']) == 3
-    assert d['y'] == [1, 2, 3]
+    assert list(d['y'].values()) == [1, 2, 3]
 
     # Test assigning UIDs
     d.assign_uid('y', 'special_entry')
@@ -92,6 +92,27 @@ def test_ItemDict():
 
     d.assign_uid('y', 'another_special_entry', 1)
     assert 2 == d.get_by_uid('y', 'another_special_entry')
+
+    # ----- Test -----
+    d = mf.ItemDict()
+    d['a'] = 'one'
+    d['a'] = 'two'
+    d['a'] = 'three'
+
+    assert d['a'] == {0: 'one', 1: 'two', 2: 'three'}
+
+    d.assign_uid('a', 'myUID', 1)
+    # Cannot assign same UID twice
+    with pytest.raises(KeyError):
+        d.assign_uid('a', 'myUID', 1)
+    assert d.get_by_uid('a', 'myUID') == 'two'
+    d.assign_uid('a', 'myUID2')
+
+    exp_uids = ('myUID', 'myUID2')
+    exp_values = ('two', 'three')
+    for i, (uid, value) in enumerate(d.iter_by_uid('a')):
+        assert exp_uids[i] == uid
+        assert exp_values[i] == value
 
 
 def test_SpecEntry():
