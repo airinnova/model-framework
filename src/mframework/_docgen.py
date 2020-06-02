@@ -297,12 +297,14 @@ def model_user_space_doc(mspec, header='Model', intro=''):
         rst = ""
         main_doc = d.get('main', '')
         if main_doc:
-            rst += f"{rst_add_icon('description')}*Description*: "
+            rst += f"{rst_add_icon('description')}"
             rst += main_doc
             rst += "\n\n"
 
-        rst += f"{rst_add_icon('singleton')}*Singleton*: {f_dict['singleton']}\n\n"
-        rst += f"{rst_add_icon('required')}*Required*: {f_dict['required']}\n\n"
+        rst += f"{rst_add_icon('singleton')}*Singleton*: {d['singleton']}\n\n"
+        rst += f"{rst_add_icon('required')}*Required*: {d['required']}\n\n"
+        if d['uid_required']:
+            rst += f"{rst_add_icon('required')}A UID must be provided.\n\n"
         return rst
 
     for f_name, f_dict in doc.items():

@@ -215,7 +215,7 @@ class UIDDict(MutableMapping):
         Args:
             :kmain: (str) main key (= type)
             :uid: (str) unique identifier
-            :idx: (int) item index to assign the UID
+            :idx: (int) item index
 
         Note:
 
@@ -266,6 +266,25 @@ class UIDDict(MutableMapping):
         idx2 = self._idx[kmain][uid2]
         for idx in range(idx1, idx2+1):
             yield self._map[kmain][idx]
+
+    def get_uid(self, kmain, idx, default=None):
+        """
+        Return the value for a UID
+
+        Args:
+            :kmain: (str) main key (= type)
+            :idx: (int) item index
+        """
+
+        if idx == 'first':
+            idx = 0
+        elif idx == 'last':
+            idx = max(self._uid[kmain].keys())
+
+        try:
+            return self._uid[kmain][idx]
+        except KeyError:
+            return default
 
 
 class ItemDict(UIDDict):
@@ -581,6 +600,24 @@ class _UserSpaceBase:
             raise KeyError(f"Method 'iter()' not supported for item {key!r}, try 'get()'")
 
         yield from list(self._items[key].values())
+
+    def iter_uids(self, key):
+        """
+        Return an iterator for values of 'key' (non-singleton)
+
+        Args:
+            :key: (str) name of item
+        """
+
+        if self._parent_specs[key].singleton:
+            raise KeyError(f"Method 'iter()' not supported for item {key!r}, try 'get()'")
+
+        # TODO !!!
+
+        yield from self._items.iter_uids(key)
+
+    def get_uid(self, key, idx):
+        return self._items.get_uid(key, idx)
 
     def len(self, key):
         return len(self._items[key])
