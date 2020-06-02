@@ -110,7 +110,7 @@ def test_ItemDict():
 
     exp_uids = ('myUID', 'myUID2')
     exp_values = ('two', 'three')
-    for i, (uid, value) in enumerate(d.iter_by_uid('a')):
+    for i, (uid, value) in enumerate(d.iter_uids('a')):
         assert exp_uids[i] == uid
         assert exp_values[i] == value
 

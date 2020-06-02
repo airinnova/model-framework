@@ -137,7 +137,7 @@ class SpecDict(UniqueDict):
         super().__setitem__(key, value)
 
 
-class ItemDict(MutableMapping):
+class UIDDict(MutableMapping):
 
     def __init__(self, *args, **kwargs):
         """
@@ -163,8 +163,8 @@ class ItemDict(MutableMapping):
         """
 
         self._map = dict()  # Maps [kmain][idx] --> value
-        self._uid = dict()  # Maps [kmain][uid] --> idx
-        self._idx = dict()  # Maps [kmain][idx] --> uid
+        self._idx = dict()  # Maps [kmain][uid] --> idx
+        self._uid = dict()  # Maps [kmain][idx] --> uid
         self.update(*args, **kwargs)
 
     def __str__(self):
@@ -174,11 +174,6 @@ class ItemDict(MutableMapping):
         return f"< {self.__class__.__qualname__}({self._map!r}) >"
 
     def __setitem__(self, kmain, value):
-        if not isinstance(kmain, str):
-            raise TypeError(
-                f"invalid key {kmain!r}: must be of type {str}, not {type(kmain)}"
-            )
-
         if kmain not in self._map.keys():
             self.__missing__(kmain)
             self._map[kmain][0] = value
@@ -192,15 +187,15 @@ class ItemDict(MutableMapping):
 
     def __missing__(self, kmain):
         self._map[kmain] = dict()
-        self._uid[kmain] = UniqueDict()  # A UID cannot be set twice
-        self._idx[kmain] = dict()
+        self._idx[kmain] = UniqueDict()  # A UID cannot be set twice
+        self._uid[kmain] = dict()
 
     def __delitem__(self, kmain):
         # Do not throw an error if 'kmain' does not exist
         try:
             del self._map[kmain]
-            del self._uid[kmain]
             del self._idx[kmain]
+            del self._uid[kmain]
         except KeyError:
             pass
 
@@ -231,8 +226,8 @@ class ItemDict(MutableMapping):
         if idx < 0:
             idx = self.len_of_type(kmain) - 1
 
-        self._uid[kmain][uid] = idx
-        self._idx[kmain][idx] = uid
+        self._idx[kmain][uid] = idx
+        self._uid[kmain][idx] = uid
 
     def get_by_uid(self, kmain, uid):
         """
@@ -243,10 +238,10 @@ class ItemDict(MutableMapping):
             :uid: (str) unique identifier
         """
 
-        idx = self._uid[kmain][uid]
+        idx = self._idx[kmain][uid]
         return self._map[kmain][idx]
 
-    def iter_by_uid(self, kmain):
+    def iter_uids(self, kmain):
         """
         Yield (uid, value) for a main key
 
@@ -254,8 +249,31 @@ class ItemDict(MutableMapping):
             :kmain: (str) main key (= type)
         """
 
-        for idx in sorted(self._uid[kmain].values()):
-            yield self._idx[kmain][idx], self._map[kmain][idx]
+        for idx in sorted(self._idx[kmain].values()):
+            yield self._uid[kmain][idx], self._map[kmain][idx]
+
+    def iter_from_to(self, kmain, uid1, uid2):
+        """
+        Yield values from a UID1 to UID2
+
+        Args:
+            :kmain: (str) main key (= type)
+            :uid1: (str) first UID
+            :uid2: (str) second UID
+        """
+
+        idx1 = self._idx[kmain][uid1]
+        idx2 = self._idx[kmain][uid2]
+        for idx in range(idx1, idx2+1):
+            yield self._map[kmain][idx]
+
+
+class ItemDict(UIDDict):
+
+    def __setitem__(self, key, value):
+        if not isinstance(key, str):
+            raise TypeError(f"invalid key {key!r}: must be of type {str}, not {type(key)}")
+        super().__setitem__(key, value)
 
 
 class SpecEntry:
