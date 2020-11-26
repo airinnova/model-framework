@@ -1,9 +1,9 @@
-Sphinx==3.0.3
-codecov==2.0.15
+Sphinx==3.3.1
+codecov==2.1.10
 commonlibs
-pytest-cov==2.7.1
-pytest==5.0.1
+pytest-cov==2.10.1
+pytest==6.1.2
 schemadict>=0.0.8
-sphinx-rtd-theme==0.4.3
-sphinxcontrib-mermaid==0.4.0
-tox==3.13.2
+sphinx-rtd-theme==0.5.0
+sphinxcontrib-mermaid==0.5.0
+tox==3.20.1
