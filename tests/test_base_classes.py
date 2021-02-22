@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from mframework._mframework import _BaseSpec, _UserSpaceBase
-from mframework import enable_logger
-enable_logger()
+from mframework import log
+log.on
 
 
 def test_BaseSpec():

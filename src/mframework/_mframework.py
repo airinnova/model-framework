@@ -142,7 +142,7 @@ class UIDDict(MutableMapping):
     def __init__(self, *args, **kwargs):
         """
         General purpose dictionary that groups items according to a 'type'
-        (main key) in a sub-dictionary with integers as sub keys. Note that
+        (main key) in a sub-dictionary with integers as sub-keys. Note that
         multiple assignments to the same main key do not overwrite the previous
         value, but add a new entry in the sub-dictionary.
 
@@ -850,11 +850,25 @@ class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
         should first be called with 'super().run()'.
         """
 
-        # Instantiate the RESULT user if defined
+        # --- Instantiate the RESULT user if defined ---
         if self._result_user_class is not None:
             class Results(self._result_user_class):
                 def run(self):
                     raise NotImplementedError
             self.results = Results()
 
-        # TODO: check required features, properties...
+        # --- Check model definition ---
+        # Check features
+        for f_key, f_spec in self._parent_specs.items():
+            f_defined = self._items
+            if f_spec.required and f_key not in list(f_defined.keys()):
+                raise RuntimeError(f"model error: feature {f_key!r} required, but not defined")
+
+            # Check properties
+            for prop in f_defined[f_key].values():
+                for p_key, p_spec in prop._parent_specs.items():
+                    p_defined = prop._items
+                    if p_spec.required and p_key not in list(p_defined.keys()):
+                        raise RuntimeError(f"model error: property {f_key!r} > {p_key!r} required, but not defined")
+
+        # TODO: check singleton

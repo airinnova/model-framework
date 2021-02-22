@@ -4,8 +4,8 @@
 import pytest
 
 from mframework import FeatureSpec, ModelSpec
-from mframework import enable_logger
-enable_logger()
+from mframework import log
+log.on
 
 
 def test_basic():
