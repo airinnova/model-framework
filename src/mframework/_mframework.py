@@ -38,7 +38,6 @@ Model framework
 """
 
 # TODO
-# * Add check of required features/properties in 'run()' method
 # * 'required' should accept a positive int indicating how many instances are needed
 # * Add tests
 #   - Result object
@@ -622,6 +621,12 @@ class _UserSpaceBase:
     def len(self, key):
         return len(self._items[key])
 
+    def clear(self):
+        raise NotImplementedError
+
+    def remove(self):
+        raise NotImplementedError
+
     def _check_key_in_spec(self, key):
         if key not in self._parent_specs.keys():
             raise KeyError(f"key {key!r} is not in specification")
@@ -748,6 +753,7 @@ class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
     def __init__(self):
         super().__init__()
         self.results = None
+        self._check_required = True
 
     def from_dict(self, dictionary):
         """
@@ -850,14 +856,24 @@ class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
         should first be called with 'super().run()'.
         """
 
-        # --- Instantiate the RESULT user if defined ---
+        # Instantiate the RESULT user if defined
         if self._result_user_class is not None:
             class Results(self._result_user_class):
                 def run(self):
                     raise NotImplementedError
             self.results = Results()
 
-        # --- Check model definition ---
+        # Check model definition
+        if self._check_required:
+            self._check_required_items()
+
+        # TODO: check singleton
+
+    def _check_required_items(self):
+        """
+        Check if user model instance defines all required features and properties
+        """
+
         # Check features
         for f_key, f_spec in self._parent_specs.items():
             f_defined = self._items
@@ -870,5 +886,3 @@ class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
                     p_defined = prop._items
                     if p_spec.required and p_key not in list(p_defined.keys()):
                         raise RuntimeError(f"model error: property {f_key!r} > {p_key!r} required, but not defined")
-
-        # TODO: check singleton
