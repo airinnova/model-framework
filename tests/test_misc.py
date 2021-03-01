@@ -115,14 +115,15 @@ def test_ItemDict():
 
 
 def test_SpecEntry():
-    s = mf.SpecEntry(schema=int, singleton=True, required=False, doc='abc')
+    s = mf.SpecEntry(schema=int, required=False, max_items=1, doc='abc')
     assert s.schema is int
+    assert s.max_items == 1
     assert s.singleton is True
     assert s.required is False
     assert s.doc == 'abc'
 
     with pytest.raises(TypeError):
-        s.singleton = 'FALSE'
+        s.max_items = 'FALSE'
 
     with pytest.raises(TypeError):
         s.doc = 123

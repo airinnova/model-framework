@@ -112,15 +112,15 @@ def test_to_dict_and_documentation():
     # ===== Specifications =====
 
     fspec_beam = FeatureSpec()
-    fspec_beam.add_prop_spec('A', {'type': int, '>': 0}, doc='Something about property A')
-    fspec_beam.add_prop_spec('B', int, singleton=False, doc='Property B is also great')
+    fspec_beam.add_prop_spec('A', {'type': int, '>': 0}, doc='Something about property A', max_items=1)
+    fspec_beam.add_prop_spec('B', int, doc='Property B is also great')
 
     fspec_study = FeatureSpec()
-    fspec_study.add_prop_spec('static', bool)
+    fspec_study.add_prop_spec('static', bool, max_items=1)
 
     mspec = ModelSpec()
-    mspec.add_feature_spec('beam', fspec_beam, singleton=False, doc='A beam carries load')
-    mspec.add_feature_spec('study', fspec_study, singleton=True, doc='Specify the type of study to run')
+    mspec.add_feature_spec('beam', fspec_beam, doc='A beam carries load')
+    mspec.add_feature_spec('study', fspec_study, max_items=1, doc='Specify the type of study to run')
 
     class Model(mspec.user_class):
         def run(self):

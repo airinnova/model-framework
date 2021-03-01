@@ -38,15 +38,15 @@ Ambient flight conditions
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: True
+*Required*: True (1)
 
 Property: g
 ~~~~~~~~~~~
@@ -67,15 +67,15 @@ Gravitational acceleration
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -107,15 +107,15 @@ Speed of sound
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -139,15 +139,15 @@ Aerodynamic properties
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: True
+*Required*: True (1)
 
 Property: CL
 ~~~~~~~~~~~~
@@ -168,15 +168,15 @@ Cruise lift coefficient
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -208,15 +208,15 @@ Cruise drag coefficient
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -248,15 +248,15 @@ Cruise Mach number
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -280,15 +280,15 @@ Profusion properties
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: True
+*Required*: True (1)
 
 Property: cT
 ~~~~~~~~~~~~
@@ -309,15 +309,15 @@ Thrust specific fuel consumption
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -341,15 +341,15 @@ Mass properties
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: True
+*Required*: True (1)
 
 Property: m1
 ~~~~~~~~~~~~
@@ -370,15 +370,15 @@ Initial aircraft mass (at start of cruise)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -410,15 +410,15 @@ Final aircraft mass (at end of cruise)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left

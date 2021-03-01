@@ -21,8 +21,8 @@ def test_UserSpaceBase():
     class Spec(_BaseSpec):
         pass
     spec = Spec()
-    spec._add_item_spec('a', int)
-    spec._add_item_spec('b', float, singleton=False)
+    spec._add_item_spec('a', int, max_items=1)
+    spec._add_item_spec('b', float)
 
     class UserSpace(_UserSpaceBase):
         pass

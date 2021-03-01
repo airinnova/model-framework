@@ -18,14 +18,14 @@ def test_required_items():
     # ===== Specifications =====
 
     fspec_beam = FeatureSpec()
-    fspec_beam.add_prop_spec('A', int, required=True)
+    fspec_beam.add_prop_spec('A', int, required=True, max_items=1)
 
     fspec_wing = FeatureSpec()
-    fspec_wing.add_prop_spec('B', int, required=True)
+    fspec_wing.add_prop_spec('B', int, required=3)
 
     mspec = ModelSpec()
-    mspec.add_feature_spec('beam', fspec_beam, singleton=False, required=True)
-    mspec.add_feature_spec('wing', fspec_wing, singleton=False, required=True)
+    mspec.add_feature_spec('beam', fspec_beam, required=2)
+    mspec.add_feature_spec('wing', fspec_wing, required=True)
 
     class Model(mspec.user_class):
         def run(self):
@@ -37,6 +37,9 @@ def test_required_items():
     beam1 = beam_model.add_feature('beam')
     beam1.set('A', 2)
 
+    beam2 = beam_model.add_feature('beam')
+    beam2.set('A', 2)
+
     # Feature 'wing' needs to be defined
     with pytest.raises(RuntimeError):
         beam_model.run()
@@ -47,7 +50,9 @@ def test_required_items():
     with pytest.raises(RuntimeError):
         beam_model.run()
 
-    wing1.set('B', 2)
+    wing1.add('B', 2)
+    wing1.add('B', 3)
+    wing1.add('B', 4)
 
     # Model is now well-defined
     beam_model.run()

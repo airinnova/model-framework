@@ -17,10 +17,10 @@ def test_basic():
     # ===== Specifications =====
 
     fspec = FeatureSpec()
-    fspec.add_prop_spec('A', int)
-    fspec.add_prop_spec('B', int)
-    fspec.add_prop_spec('C', int, singleton=False)
-    fspec.add_prop_spec('D', {'type': int, '>': 0})
+    fspec.add_prop_spec('A', int, max_items=1)
+    fspec.add_prop_spec('B', int, max_items=1)
+    fspec.add_prop_spec('C', int)
+    fspec.add_prop_spec('D', {'type': int, '>': 0}, max_items=1)
 
     # Check that schemas cannot be defined twice
     with pytest.raises(KeyError):
@@ -97,8 +97,8 @@ def test_complex_schema():
     }
 
     fspec_aircraft = FeatureSpec()
-    fspec_aircraft.add_prop_spec('global', schema_global)
-    fspec_aircraft.add_prop_spec('wing', schema_wing, singleton=False)
+    fspec_aircraft.add_prop_spec('global', schema_global, max_items=1)
+    fspec_aircraft.add_prop_spec('wing', schema_wing)
 
     Aircraft = fspec_aircraft.user_class
     aircraft = Aircraft()
@@ -128,9 +128,9 @@ def test_complex_schema():
 
 def test_from_dict():
     fspec = FeatureSpec()
-    fspec.add_prop_spec('a', int)
-    fspec.add_prop_spec('b', str)
-    fspec.add_prop_spec('c', {'type': bool})
+    fspec.add_prop_spec('a', int, max_items=1)
+    fspec.add_prop_spec('b', str, max_items=1)
+    fspec.add_prop_spec('c', {'type': bool}, max_items=1)
 
     Feature = fspec.user_class
 
@@ -164,13 +164,13 @@ def test_error_add_property_spec():
     with pytest.raises(TypeError):
         fspec.add_prop_spec('number', MySpecialNumber)
 
-    # ----- Wrong type: singleton -----
+    # ----- Wrong type: max_items -----
     with pytest.raises(TypeError):
-        fspec.add_prop_spec('number', int, singleton='yes')
+        fspec.add_prop_spec('number', int, max_items='yes')
 
     # ----- Wrong type: required -----
     with pytest.raises(TypeError):
-        fspec.add_prop_spec('number', int, singleton=True, required='yes')
+        fspec.add_prop_spec('number', int, required='yes', max_items=1)
 
     # Cannot add property twice...
     fspec.add_prop_spec('color', str)
@@ -185,8 +185,8 @@ def test_error_provide_user_class():
     print()
 
     fspec = FeatureSpec()
-    fspec.add_prop_spec('a', int, singleton=True)
-    fspec.add_prop_spec('b', int, singleton=False)
+    fspec.add_prop_spec('a', int, max_items=1)
+    fspec.add_prop_spec('b', int)
     Feature = fspec.user_class
 
     f = Feature()

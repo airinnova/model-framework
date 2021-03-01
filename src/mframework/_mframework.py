@@ -38,7 +38,6 @@ Model framework
 """
 
 # TODO
-# * 'required' should accept a positive int indicating how many instances are needed
 # * Add tests
 #   - Result object
 #   - ...
@@ -48,10 +47,13 @@ Model framework
 #   - GUI,
 #   - Automated testing
 # * Add 'clear()' or 'remove()' methods for features, properties...
+# * Allow default values
+# Check case: --> cannot have singleton property/feature and required > 0
 
 
 from abc import abstractmethod, ABCMeta
 from collections.abc import MutableMapping
+from math import inf
 from uuid import uuid4
 
 from schemadict import schemadict, STANDARD_VALIDATORS
@@ -296,14 +298,14 @@ class ItemDict(UIDDict):
 
 class SpecEntry:
 
-    def __init__(self, schema, singleton=True, required=False, doc='', uid_required=False):
+    def __init__(self, schema, required=1, max_items=inf, doc='', uid_required=False):
         """
         Specification entry
         """
 
         self.schema = schema
-        self.singleton = singleton
         self.required = required
+        self.max_items = max_items
         self.doc = doc
         self.uid_required = uid_required
 
@@ -316,22 +318,29 @@ class SpecEntry:
         self._schema = schema
 
     @property
-    def singleton(self):
-        return self._singleton
-
-    @singleton.setter
-    def singleton(self, singleton):
-        check_type('singleton', singleton, bool)
-        self._singleton = singleton
-
-    @property
     def required(self):
         return self._required
 
     @required.setter
     def required(self, required):
-        check_type('required', required, bool)
+        check_type('required', required, int)  # TODO: check int >= 0
         self._required = required
+
+    @property
+    def max_items(self):
+        return self._max_items
+
+    @max_items.setter
+    def max_items(self, max_items):
+        if max_items != inf:
+            check_type('max_items', max_items, int)  # TODO: check int >= 0
+            if max_items < self.required:
+                raise ValueError("'max_items' must be larger than the number of required items")
+        self._max_items = max_items
+
+    @property
+    def singleton(self):
+        return self.max_items == 1
 
     @property
     def uid_required(self):
@@ -341,7 +350,7 @@ class SpecEntry:
     def uid_required(self, uid_required):
         check_type('uid_required', uid_required, bool)
         if uid_required and self.singleton:
-            raise ValueError("'uid_required' does only apply if 'singleton' is False")
+            raise ValueError("'uid_required' does only apply if item is singleton")
         self._uid_required = uid_required
 
     @property
@@ -380,15 +389,15 @@ class _BaseSpec:
     def __repr__(self):
         return f"<Specification for {tuple(self._specs.keys())!r}>"
 
-    def _add_item_spec(self, key, schema, *, singleton=True, required=False, doc='', uid_required=False):
+    def _add_item_spec(self, key, schema, *, required=1, max_items=inf, doc='', uid_required=False):
         """
         Add a specification entry
 
         Args:
             :key: (str) name of item to specify
             :schema: (obj) specification
-            :singleton: (bool) if True, make item singleton
-            :required: (bool) if True, make item required
+            :required: (int) number of required items
+            :max_items: (int) maximum number of items
             :doc: (str) documentation
             :uid_required: (str) if True, UID must be set
 
@@ -399,7 +408,7 @@ class _BaseSpec:
             * When calling from subclass, add a user input check for 'schema'
         """
 
-        self._specs[key] = SpecEntry(schema, singleton, required, doc, uid_required)
+        self._specs[key] = SpecEntry(schema, required, max_items, doc, uid_required)
 
     def _provide_user_class_from_base(self, base):
         """
@@ -436,8 +445,8 @@ class _BaseSpec:
                 'main': self._specs[key].doc,
                 'sub': subdocs,
                 'schema': self._specs[key].schema,
-                'singleton': self._specs[key].singleton,
                 'required': self._specs[key].required,
+                'max_items': self._specs[key].max_items,
                 'uid_required': self._specs[key].uid_required,
             }
         return docs
@@ -651,15 +660,15 @@ class _UserSpaceBase:
 
 class FeatureSpec(_BaseSpec):
 
-    def add_prop_spec(self, key, schema, *, singleton=True, required=False, doc='', uid_required=False):
+    def add_prop_spec(self, key, schema, *, required=1, max_items=inf, doc='', uid_required=False):
         """
         Add a property specification entry
 
         Args:
             :key: (str) name of property to specify
             :schema: (obj) specification (primitive type, or 'schemadict')
-            :singleton: (bool) if True, make item singleton
-            :required: (bool) if True, make item required
+            :required: (int) number of required items
+            :max_items: (int) maximum number of items
             :doc: (str) documentation
             :uid_required: (str) if True, UID must be set
         """
@@ -674,8 +683,8 @@ class FeatureSpec(_BaseSpec):
         super()._add_item_spec(
             key,
             schema,
-            singleton=singleton,
             required=required,
+            max_items=max_items,
             doc=doc,
             uid_required=uid_required,
         )
@@ -709,15 +718,15 @@ class ModelSpec(_BaseSpec, metaclass=ABCMeta):
         check_type('results', results, self.__class__)
         self._results = results
 
-    def add_feature_spec(self, key, feature_spec, *, singleton=True, required=True, doc='', uid_required=False):
+    def add_feature_spec(self, key, feature_spec, *, required=1, max_items=inf, doc='', uid_required=False):
         """
         Add a feature specification entry
 
         Args:
             :key: (str) name of feature to specify
             :schema: (obj) specification (instance of FeatureSpec)
-            :singleton: (bool) if True, make feature singleton
-            :required: (bool) if True, make feature required
+            :required: (int) number of required items
+            :max_items: (int) maximum number of items
             :doc: (str) documentation
             :uid_required: (str) if True, UID must be set
         """
@@ -728,8 +737,8 @@ class ModelSpec(_BaseSpec, metaclass=ABCMeta):
         super()._add_item_spec(
             key,
             feature_spec,
-            singleton=singleton,
             required=required,
+            max_items=max_items,
             doc=doc,
             uid_required=uid_required,
         )
@@ -867,8 +876,6 @@ class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
         if self._check_required:
             self._check_required_items()
 
-        # TODO: check singleton
-
     def _check_required_items(self):
         """
         Check if user model instance defines all required features and properties
@@ -877,12 +884,16 @@ class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
         # Check features
         for f_key, f_spec in self._parent_specs.items():
             f_defined = self._items
-            if f_spec.required and f_key not in list(f_defined.keys()):
-                raise RuntimeError(f"model error: feature {f_key!r} required, but not defined")
+            if int(f_spec.required) > len(f_defined[f_key]):
+                raise RuntimeError(
+                    f"model error: feature {f_key!r} required >= {int(f_spec.required)} times"
+                )
 
             # Check properties
             for prop in f_defined[f_key].values():
                 for p_key, p_spec in prop._parent_specs.items():
                     p_defined = prop._items
-                    if p_spec.required and p_key not in list(p_defined.keys()):
-                        raise RuntimeError(f"model error: property {f_key!r} > {p_key!r} required, but not defined")
+                    if int(p_spec.required) > len(p_defined[p_key]):
+                        raise RuntimeError(
+                            f"model error: property '{f_key}/{p_key}' required >= {int(p_spec.required)} times"
+                        )

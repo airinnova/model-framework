@@ -215,7 +215,7 @@ ICONS = {
     'property': 'parking.svg',
     'description': 'notes.svg',
     'required': 'lifebuoy.svg',
-    'singleton': 'point.svg',
+    'max_items': 'point.svg',
     'schema': 'clipboard-check.svg',
 }
 
@@ -324,6 +324,7 @@ def model_user_space_doc(mspec, header='Model', intro=''):
     rst += gen_feature_graph(mspec)
 
     doc = mspec.get_docs()
+
     def add_doc_section(d):
         rst = ""
         main_doc = d.get('main', '')
@@ -332,8 +333,8 @@ def model_user_space_doc(mspec, header='Model', intro=''):
             rst += main_doc
             rst += "\n\n"
 
-        rst += f"{rst_add_icon('singleton')}*Singleton*: {d['singleton']}\n\n"
-        rst += f"{rst_add_icon('required')}*Required*: {d['required']}\n\n"
+        rst += f"{rst_add_icon('max_items')}*Maximum number*: {d['max_items']}\n\n"
+        rst += f"{rst_add_icon('required')}*Required*: {int(d['required']) > 0} ({int(d['required'])})\n\n"
         if d['uid_required']:
             rst += f"{rst_add_icon('required')}A UID must be provided.\n\n"
         return rst

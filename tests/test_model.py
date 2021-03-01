@@ -17,15 +17,15 @@ def test_basic():
     # ===== Specifications =====
 
     fspec_beam = FeatureSpec()
-    fspec_beam.add_prop_spec('A', int)
-    fspec_beam.add_prop_spec('B', int, singleton=False)
+    fspec_beam.add_prop_spec('A', int, max_items=1)
+    fspec_beam.add_prop_spec('B', int)
 
     fspec_study = FeatureSpec()
-    fspec_study.add_prop_spec('static', bool)
+    fspec_study.add_prop_spec('static', bool, max_items=1)
 
     mspec = ModelSpec()
-    mspec.add_feature_spec('beam', fspec_beam, singleton=False)
-    mspec.add_feature_spec('study', fspec_study, singleton=True)
+    mspec.add_feature_spec('beam', fspec_beam)
+    mspec.add_feature_spec('study', fspec_study, required=1, max_items=1)
 
     class Model(mspec.user_class):
         def run(self):
@@ -58,18 +58,18 @@ def test_basic():
 
 def test_from_dict():
     fspec1 = FeatureSpec()
-    fspec1.add_prop_spec('a', int)
-    fspec1.add_prop_spec('b', str)
-    fspec1.add_prop_spec('c', {'type': bool})
+    fspec1.add_prop_spec('a', int, max_items=1)
+    fspec1.add_prop_spec('b', str, max_items=1)
+    fspec1.add_prop_spec('c', {'type': bool}, max_items=1)
 
     fspec2 = FeatureSpec()
-    fspec2.add_prop_spec('one', int)
-    fspec2.add_prop_spec('two', str)
-    fspec2.add_prop_spec('three', {'type': bool})
+    fspec2.add_prop_spec('one', int, max_items=1)
+    fspec2.add_prop_spec('two', str, max_items=1)
+    fspec2.add_prop_spec('three', {'type': bool}, max_items=1)
 
     mspec = ModelSpec()
-    mspec.add_feature_spec('A', fspec1)
-    mspec.add_feature_spec('B', fspec2)
+    mspec.add_feature_spec('A', fspec1, max_items=1)
+    mspec.add_feature_spec('B', fspec2, max_items=1)
 
     class Model(mspec.user_class):
         def run(self):
@@ -129,9 +129,9 @@ def test_errors_add_feature_spec():
     with pytest.raises(TypeError):
         mspec_car.add_feature_spec('door', fspec_door.user_class())
 
-    # ----- Wrong type: singleton -----
+    # ----- Wrong type: max_items -----
     with pytest.raises(TypeError):
-        mspec_car.add_feature_spec('door', fspec_door, singleton='yes')
+        mspec_car.add_feature_spec('door', fspec_door, max_items='yes')
 
     # Cannot add property twice...
     mspec_car.add_feature_spec('motor', fspec_motor)
@@ -148,13 +148,13 @@ def test_error_set_feature():
     fspec = FeatureSpec()
     mspec = ModelSpec()
 
-    fspec.add_prop_spec('a', int, singleton=True)
-    fspec.add_prop_spec('b', int, singleton=False)
-    mspec.add_feature_spec('A', fspec, singleton=True)
+    fspec.add_prop_spec('a', int, max_items=1)
+    fspec.add_prop_spec('b', int)
+    mspec.add_feature_spec('A', fspec, max_items=1)
 
-    fspec.add_prop_spec('1', str, singleton=True)
-    fspec.add_prop_spec('2', str, singleton=False)
-    mspec.add_feature_spec('B', fspec, singleton=False)
+    fspec.add_prop_spec('1', str, max_items=1)
+    fspec.add_prop_spec('2', str)
+    mspec.add_feature_spec('B', fspec)
 
     class Model(mspec.user_class):
         def run(self):
