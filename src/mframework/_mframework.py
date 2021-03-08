@@ -49,6 +49,7 @@ Model framework
 # * Add 'clear()' or 'remove()' methods for features, properties...
 # * Allow default values
 # Check case: --> cannot have singleton property/feature and required > 0
+# * Implement get_default()
 
 
 from abc import abstractmethod, ABCMeta
@@ -62,6 +63,12 @@ from ._log import logger
 
 PRIMITIVE_TYPES = (bool, int, float, str, dict, list, tuple)
 
+SchemadictValidators = STANDARD_VALIDATORS
+
+
+class S:
+    pos_int = {'type': int, '>=': 0}
+
 
 def is_primitve_type(obj):
     return obj in PRIMITIVE_TYPES
@@ -72,9 +79,6 @@ def check_type(var_name, var, exp_type):
         raise TypeError(
             f"invalid type for {var_name!r}: expected {exp_type}, got {type(var)}"
         )
-
-
-SchemadictValidators = STANDARD_VALIDATORS
 
 
 class DictLike(MutableMapping):
@@ -301,6 +305,13 @@ class SpecEntry:
     def __init__(self, schema, required=1, max_items=inf, doc='', uid_required=False):
         """
         Specification entry
+
+        Sensible defaults
+        -----------------
+
+        * The number of required items is set to 1.
+        * The maximum number of items is set to infinity. Setting 'max_items=1'
+          would also be sensible. However, it is easier to define infinity here.
         """
 
         self.schema = schema
@@ -323,7 +334,7 @@ class SpecEntry:
 
     @required.setter
     def required(self, required):
-        check_type('required', required, int)  # TODO: check int >= 0
+        schemadict({'required': S.pos_int}).validate({'required': required})
         self._required = required
 
     @property
@@ -333,7 +344,7 @@ class SpecEntry:
     @max_items.setter
     def max_items(self, max_items):
         if max_items != inf:
-            check_type('max_items', max_items, int)  # TODO: check int >= 0
+            schemadict({'max_items': S.pos_int}).validate({'max_items': max_items})
             if max_items < self.required:
                 raise ValueError("'max_items' must be larger than the number of required items")
         self._max_items = max_items
@@ -384,7 +395,7 @@ class _BaseSpec:
     @property
     def keys(self):
         """Return all spec keys"""
-        return self._specs.keys()
+        return list(self._specs.keys())
 
     def __repr__(self):
         return f"<Specification for {tuple(self._specs.keys())!r}>"
@@ -466,6 +477,7 @@ class _UserSpaceBase:
             :uid: (str) unique identifier
             :_specs: (dict) specifications (value) of items (key)
         """
+
         self.uid = str(uuid4())
         self._items = ItemDict()
 
@@ -476,6 +488,16 @@ class _UserSpaceBase:
     def keys(self):
         """Return all item keys"""
         return self._items.keys()
+
+    def singleton(self, key):
+        """
+        Return True if 'key' specifies singleton items
+
+        Args:
+            :key: (str) name of item
+        """
+
+        return self._parent_specs[key].singleton
 
     def from_dict(self, d):
         """
@@ -494,7 +516,7 @@ class _UserSpaceBase:
             if key.startswith('$'):
                 continue
             self._check_key_in_spec(key)
-            if self._parent_specs[key].singleton:
+            if self.singleton(key):
                 self.set(key, value[0])
             else:
                 self.add_many(key, *value)
@@ -533,7 +555,7 @@ class _UserSpaceBase:
         self._check_key_in_spec(key)
         self._check_against_schema(key, value)
 
-        if not self._parent_specs[key].singleton:
+        if not self.singleton(key):
             raise RuntimeError(f"key {key!r}: method 'set()' does not apply, try 'add()'")
 
         logger.debug(f"Set property {key!r} = {value!r} in {self!r}")
@@ -550,10 +572,11 @@ class _UserSpaceBase:
         """
 
         self._check_key_in_spec(key)
+        self._check_below_max_items(key)
         self._check_uid_required(key, uid)
         self._check_against_schema(key, value)
 
-        if self._parent_specs[key].singleton:
+        if self.singleton(key):
             raise RuntimeError(f"key {key!r}: method 'add()' does not apply, try 'set()'")
 
         logger.debug(f"Add property {key!r} = {value!r} (num: {len(self._items[key])+1}) in {self!r}")
@@ -587,8 +610,8 @@ class _UserSpaceBase:
         if not self._items[key]:
             return default
 
-        if self._parent_specs[key].singleton:
-            # TODO: not-None UID does not apply...
+        if self.singleton(key):
+            logger.warning(f"ignoring UID {uid!r} since not applicable for singletons")
             return self._items[key][0]
         else:
             if uid is not None:
@@ -604,7 +627,7 @@ class _UserSpaceBase:
             :key: (str) name of item
         """
 
-        if self._parent_specs[key].singleton:
+        if self.singleton(key):
             raise KeyError(f"Method 'iter()' not supported for item {key!r}, try 'get()'")
 
         yield from list(self._items[key].values())
@@ -617,7 +640,7 @@ class _UserSpaceBase:
             :key: (str) name of item
         """
 
-        if self._parent_specs[key].singleton:
+        if self.singleton(key):
             raise KeyError(f"Method 'iter()' not supported for item {key!r}, try 'get()'")
 
         # TODO !!!
@@ -640,22 +663,33 @@ class _UserSpaceBase:
         if key not in self._parent_specs.keys():
             raise KeyError(f"key {key!r} is not in specification")
 
+    def _check_below_max_items(self, key):
+        if not len(self._items[key].values()) < self._parent_specs[key].max_items:
+            raise RuntimeError(f"maximum number of items for key {key!r} has been set")
+
     def _check_uid_required(self, key, uid):
         if self._parent_specs[key].uid_required and uid is None:
             raise RuntimeError(f"key {key!r} requires a UID")
 
     def _check_against_schema(self, key, value):
+        # TODO: look over logic
         if isinstance(self._parent_specs[key].schema, dict):
             if not isinstance(value, dict):
                 schemadict(
-                    {f"{key}": self._parent_specs[key].schema},
+                    {key: self._parent_specs[key].schema},
                     validators=SchemadictValidators,
-                ).validate({f"{key}": value})
+                ).validate({key: value})
             else:
+                # Schema has schemadict format
                 schemadict(
                     self._parent_specs[key].schema,
                     validators=SchemadictValidators
                 ).validate(value)
+        else:  # Schema is of primitive type
+            schemadict(
+                {key: {'type': self._parent_specs[key].schema}},
+                validators=SchemadictValidators
+            ).validate({key: value})
 
 
 class FeatureSpec(_BaseSpec):
@@ -782,7 +816,7 @@ class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
             self._check_key_in_spec(key)
 
             for fdict in fdicts:
-                if self._parent_specs[key].singleton:
+                if self.singleton(key):
                     feature = self.set_feature(key)
                 else:
                     feature = self.add_feature(key)
@@ -824,7 +858,7 @@ class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
             :feature: (obj) feature instance
         """
 
-        if not self._parent_specs[key].singleton:
+        if not self.singleton(key):
             raise RuntimeError(f"key {key!r}: method 'set_feature()' does not apply, try 'add_feature()'")
 
         logger.debug(f"Set feature {key!r} in {self!r}")
@@ -843,7 +877,7 @@ class _ModelUserSpace(_UserSpaceBase, metaclass=ABCMeta):
             :feature: (obj) feature instance
         """
 
-        if self._parent_specs[key].singleton:
+        if self.singleton(key):
             raise RuntimeError(f"key {key!r}: method 'add_feature()' does not apply, try 'set_feature()'")
 
         self._check_uid_required(key, uid)

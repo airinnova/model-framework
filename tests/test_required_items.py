@@ -18,14 +18,15 @@ def test_required_items():
     # ===== Specifications =====
 
     fspec_beam = FeatureSpec()
-    fspec_beam.add_prop_spec('A', int, required=True, max_items=1)
+    fspec_beam.add_prop_spec('A', int, required=1, max_items=1)
 
     fspec_wing = FeatureSpec()
-    fspec_wing.add_prop_spec('B', int, required=3)
+    fspec_wing.add_prop_spec('B', int, required=3, max_items=3)
+    # fspec_wing.add_prop_spec('C', int, required=-1)
 
     mspec = ModelSpec()
     mspec.add_feature_spec('beam', fspec_beam, required=2)
-    mspec.add_feature_spec('wing', fspec_wing, required=True)
+    mspec.add_feature_spec('wing', fspec_wing, required=1)
 
     class Model(mspec.user_class):
         def run(self):
@@ -50,9 +51,13 @@ def test_required_items():
     with pytest.raises(RuntimeError):
         beam_model.run()
 
-    wing1.add('B', 2)
-    wing1.add('B', 3)
-    wing1.add('B', 4)
+    wing1.add('B', 11)
+    wing1.add('B', 22)
+    wing1.add('B', 33)
+
+    # Cannot add more items of type 'B'
+    with pytest.raises(RuntimeError):
+        wing1.add('B', 44)
 
     # Model is now well-defined
     beam_model.run()
