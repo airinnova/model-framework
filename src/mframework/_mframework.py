@@ -586,6 +586,16 @@ class _UserSpaceBase:
             self._items.assign_uid(key, uid)
 
     def add_many(self, key, *values):
+        """
+        Add multiple items (non-singleton)
+
+        * Method does not support keys which require UIDs
+
+        Args:
+            :key: (str) name of property to specify
+            :values: (obj) values of the item to specify
+        """
+
         for value in values:
             self.add(key, value)
 
