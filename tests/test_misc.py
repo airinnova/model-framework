@@ -8,6 +8,7 @@ Test various building blocks
 import pytest
 
 import mframework._mframework as mf
+import mframework._utils as mfu
 from mframework import log as log
 log.on
 
@@ -42,7 +43,7 @@ def test_check_type():
 
 
 def test_DictLike():
-    d = mf.DictLike()
+    d = mfu.DictLike()
     d['x'] = 2
     d['y'] = 3
     d['z'] = 77
