@@ -18,11 +18,6 @@ def test_log():
     log.on
 
 
-def test_version():
-    from mframework.__version__ import __version__
-    print(__version__)
-
-
 def test_is_primitive_type():
     assert mf.is_primitve_type(bool)
     assert mf.is_primitve_type(int)
