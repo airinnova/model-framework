@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os
 import setuptools
 from setuptools import find_packages
-import os
-
-from src.mframework.__version__ import __version__
 
 NAME = 'model-framework'
 PACKAGE = 'mframework'
-VERSION = __version__
+VERSION = "0.1.0"
 AUTHOR = 'Aaron Dettmann'
 EMAIL = 'dettmann@kth.se'
 DESCRIPTION = 'Framework to build consistent model interfaces'
 URL = 'https://github.com/airinnova/model-framework'
-REQUIRES_PYTHON = '>=3.6.0'
+REQUIRES_PYTHON = '>=3.11.11'
 REQUIRED = [
     'commonlibs',
     'schemadict',
@@ -46,8 +44,8 @@ setuptools.setup(
     install_requires=REQUIRED,
     # See: https://pypi.org/classifiers/
     classifiers=[
-        "Programming Language :: Python :: 3",
-        'Programming Language :: Python :: 3.6',
+        "Programming Language :: Python :: 3.11",
+        'Programming Language :: Python :: 3.11.11',
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
         "Intended Audience :: Developers",
