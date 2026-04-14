@@ -2,7 +2,7 @@ sphinx==8.2.3
 codecov==2.1.13
 commonlibs
 pytest-cov==6.1.1
-pytest==8.3.5
+pytest==9.0.3
 schemadict==0.0.12
 sphinx-rtd-theme==3.0.2
 sphinxcontrib-mermaid==1.0.0
